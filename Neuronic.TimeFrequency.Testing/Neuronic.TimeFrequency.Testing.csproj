@@ -55,19 +55,62 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Tools.cs" />
     <Compile Include="WaveletTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Neuronic.TimeFrequency\Neuronic.TimeFrequency.csproj">
       <Project>{8ad539ae-f3f0-4a98-80ff-cdd942e2552f}</Project>
       <Name>Neuronic.TimeFrequency</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_gaus1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_gaus2.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_gaus3.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_gaus4.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_gaus5.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_morl.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavefun_mexh.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

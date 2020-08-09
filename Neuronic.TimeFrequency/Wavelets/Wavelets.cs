@@ -76,7 +76,7 @@ namespace Neuronic.TimeFrequency.Wavelets
                     return new ContinuousWavelet(t => 2 / Math.Sqrt(3) * (1 - 2 * t * t) * f0(t),
                         min: min, max: max);
                 case 3:
-                    return new ContinuousWavelet(t => 4 / Math.Sqrt(15) * t * (3 - 2 * t * t) * f0(t),
+                    return new ContinuousWavelet(t => -4 / Math.Sqrt(15) * t * (3 - 2 * t * t) * f0(t),
                         min: min, max: max);
                 case 4:
                     return new ContinuousWavelet(t => 4 / Math.Sqrt(105) * (3 - 12 * t * t + 4 * t * t * t * t) * f0(t),
