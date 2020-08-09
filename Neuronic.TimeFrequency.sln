@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuronic.TimeFrequency", "Neuronic.TimeFrequency\Neuronic.TimeFrequency.csproj", "{8AD539AE-F3F0-4A98-80FF-CDD942E2552F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8AD539AE-F3F0-4A98-80FF-CDD942E2552F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AD539AE-F3F0-4A98-80FF-CDD942E2552F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AD539AE-F3F0-4A98-80FF-CDD942E2552F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AD539AE-F3F0-4A98-80FF-CDD942E2552F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5E0BB3E-8D64-4222-BF40-325890F94C85}
+	EndGlobalSection
+EndGlobal
