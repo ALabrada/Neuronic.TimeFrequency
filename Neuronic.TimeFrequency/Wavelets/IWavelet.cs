@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Wavelets
 {
-    interface IWavelet
+    public interface IWavelet
     {
         Complex[] Evaluate(double min, double max, int count);
         void Evaluate(double min, double max, Complex[] values, int start, int count);

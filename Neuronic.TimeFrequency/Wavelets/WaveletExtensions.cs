@@ -1,6 +1,6 @@
-﻿namespace Neuronic.TimeFrequency
+﻿namespace Neuronic.TimeFrequency.Wavelets
 {
-    static class WaveletExtensions
+    public static class WaveletExtensions
     {
         public static double GetFrequencyOf(this IWavelet wavelet, double scale)
         {

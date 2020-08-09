@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Wavelets
 {
-
-    class ContinuousWavelet : WaveletBase
+    public class ContinuousWavelet : WaveletBase
     {   
         private readonly Func<double, Complex> _func;
 

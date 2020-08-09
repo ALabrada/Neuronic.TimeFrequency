@@ -3,9 +3,9 @@ using System.Linq;
 using System.Numerics;
 using Accord.Math;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Wavelets
 {
-    class OrthogonalWavelet : WaveletBase
+    public class OrthogonalWavelet : WaveletBase
     {
         private readonly double[] _lowReconstructionFilter;
         private readonly double[] _highReconstructionFilter;

@@ -6,7 +6,7 @@ using Accord.Math.Transforms;
 
 namespace Neuronic.TimeFrequency
 {
-    class ShortTimeFourierTransform
+    public class ShortTimeFourierTransform
     {
         private Complex[,] _values;
         private double[] _frequencies;

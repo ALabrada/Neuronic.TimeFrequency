@@ -3,9 +3,9 @@ using System.Numerics;
 using Accord.Math;
 using Accord.Math.Transforms;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Wavelets
 {
-    abstract class WaveletBase : IWavelet
+    public abstract class WaveletBase : IWavelet
     {
         public abstract Complex Energy { get; }
 

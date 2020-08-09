@@ -5,10 +5,11 @@ using System.Linq;
 using System.Numerics;
 using Accord.Math;
 using Accord.Math.Transforms;
+using Neuronic.TimeFrequency.Wavelets;
 
 namespace Neuronic.TimeFrequency
 {
-    class ContinuousWaveletTransform: IEnumerable<Complex>
+    public class ContinuousWaveletTransform: IEnumerable<Complex>
     {
         private Complex[,] _values;
         private double[] _scales;
@@ -28,7 +29,7 @@ namespace Neuronic.TimeFrequency
             
             scales = scales ?? Enumerable.Range(1, samples.Length).Select(i => samplingPeriod.TotalSeconds * i);
             var scaleArray = scales.ToArray();
-            wavelet = wavelet ?? Wavelets.Haar;
+            wavelet = wavelet ?? Wavelets.Wavelets.Haar;
 
             var general = new Complex[samples.Length];
             for (int offset = 0; offset < samples.Length; offset++)
@@ -67,7 +68,11 @@ namespace Neuronic.TimeFrequency
 
         public IWavelet Wavelet { get; }
 
+#if !NET40
         public IReadOnlyList<double> Scales => _scales;
+#else
+        public IList<double> Scales => _scales;
+#endif
 
         public Complex this[int offset, int scaleIndex] => _values[offset, scaleIndex];
 
