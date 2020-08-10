@@ -61,7 +61,9 @@ namespace Neuronic.TimeFrequency.Testing.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0, [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to 5.2446e-11
+        ///0
+        ///.
         /// </summary>
         internal static string wavefun_bior3_3 {
             get {
@@ -218,11 +220,78 @@ namespace Neuronic.TimeFrequency.Testing.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0,-0, [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to 0
+        ///0
+        ///.
         /// </summary>
         internal static string wavefun_rbio3_3 {
             get {
                 return ResourceManager.GetString("wavefun_rbio3_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.066291,-0.19887,-0.15468,0.99437,0.99437,-0.15468,-0.19887,0.066291
+        ///0,-0,0.17678,-0.53033,0.53033,-0.17678,0,-0
+        ///.
+        /// </summary>
+        internal static string wfilters_bior3_3 {
+            get {
+                return ResourceManager.GetString("wfilters_bior3_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.02667,0.18818,0.5272,0.68846,0.28117,-0.24985,-0.19595,0.12737,0.093057,-0.071394,-0.029458,0.033213,0.0036066,-0.010733,0.0013954,0.0019924,-0.00068586,-0.00011647,9.3589e-05,-1.3264e-05
+        ///-1.3264e-05,-9.3589e-05,-0.00011647,0.00068586,0.0019924,-0.0013954,-0.010733,-0.0036066,0.033213,0.029458,-0.071394,-0.093057,0.12737,0.19595,-0.24985,-0.28117,0.68846,-0.5272,0.18818,-0.02667
+        ///.
+        /// </summary>
+        internal static string wfilters_db10 {
+            get {
+                return ResourceManager.GetString("wfilters_db10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.00077995,0.010549,0.063424,0.21994,0.4727,0.61049,0.3615,-0.13921,-0.32679,-0.016727,0.22829,0.03985,-0.15546,-0.024717,0.10229,0.0056322,-0.061723,0.0058747,0.032294,-0.0087893,-0.013811,0.0067216,0.0044205,-0.0035815,-0.00083156,0.0013926,-5.3498e-05,-0.0003851,0.00010153,6.7743e-05,-3.7106e-05,-4.3761e-06,7.2412e-06,-1.012e-06,-6.8471e-07,2.6339e-07,2.0143e-10,-1.8148e-08,4.0561e-09,-2.9988e-10
+        ///-2.9988e-10,-4.0561e-09,-1.8148e-08,-2.0143e-10,2.6339e-07,6.8471e-07,-1.012e-06,-7.2412e-06,-4.3761e-06,3.71 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string wfilters_db20 {
+            get {
+                return ResourceManager.GetString("wfilters_db20", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.1601,0.60383,0.72431,0.13843,-0.24229,-0.032245,0.077571,-0.0062415,-0.012581,0.0033357
+        ///0.0033357,0.012581,-0.0062415,-0.077571,-0.032245,0.24229,0.13843,-0.72431,0.60383,-0.1601
+        ///.
+        /// </summary>
+        internal static string wfilters_db5 {
+            get {
+                return ResourceManager.GetString("wfilters_db5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.70711,0.70711
+        ///0.70711,-0.70711
+        ///.
+        /// </summary>
+        internal static string wfilters_haar {
+            get {
+                return ResourceManager.GetString("wfilters_haar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0,0,0.17678,0.53033,0.53033,0.17678,0,0
+        ///0.066291,0.19887,-0.15468,-0.99437,0.99437,0.15468,-0.19887,-0.066291
+        ///.
+        /// </summary>
+        internal static string wfilters_rbio3_3 {
+            get {
+                return ResourceManager.GetString("wfilters_rbio3_3", resourceCulture);
             }
         }
     }

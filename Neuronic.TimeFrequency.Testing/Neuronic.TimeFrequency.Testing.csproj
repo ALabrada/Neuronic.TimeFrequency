@@ -84,6 +84,12 @@
     <None Include="Resources\wavefun_db5.csv" />
     <None Include="Resources\wavefun_haar.csv" />
     <None Include="Resources\wavefun_rbio3.3.csv" />
+    <None Include="Resources\wfilters_bior3.3.csv" />
+    <None Include="Resources\wfilters_db10.csv" />
+    <None Include="Resources\wfilters_db20.csv" />
+    <None Include="Resources\wfilters_db5.csv" />
+    <None Include="Resources\wfilters_haar.csv" />
+    <None Include="Resources\wfilters_rbio3.3.csv" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Neuronic.TimeFrequency\Neuronic.TimeFrequency.csproj">

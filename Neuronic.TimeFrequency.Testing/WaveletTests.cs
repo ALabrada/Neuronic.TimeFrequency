@@ -42,8 +42,8 @@ namespace Neuronic.TimeFrequency.Testing
         [DataRow("db5", "wavefun_db5", DisplayName = "Daubechies order 5")]
         [DataRow("db10", "wavefun_db10", DisplayName = "Daubechies order 10")]
         [DataRow("db20", "wavefun_db20", DisplayName = "Daubechies order 20")]
-        //[DataRow("bior3.3", "wavefun_bior3.3", DisplayName = "Biorthogonal 3.3")]
-        //[DataRow("rbio3.3", "wavefun_rbio3.3", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("bior3.3", "wavefun_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("rbio3.3", "wavefun_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
         public void TestEvaluatingOrthogonalWavelets(string wavName, string valueList)
         {
             var resources = new ResourceManager("Neuronic.TimeFrequency.Testing.Properties.Resources",
@@ -62,6 +62,28 @@ namespace Neuronic.TimeFrequency.Testing
             var actualValues = wavelet.Evaluate(x[0], x[x.Count - 1], x.Count);
 
             Tools.AssertAreEqual(expectedValues, actualValues, 1e-3);
+        }
+
+        [TestMethod]
+        [DataRow("haar", "wfilters_haar", DisplayName = "Haar")]
+        [DataRow("db5", "wfilters_db5", DisplayName = "Daubechies order 5")]
+        [DataRow("db10", "wfilters_db10", DisplayName = "Daubechies order 10")]
+        [DataRow("db20", "wfilters_db20", DisplayName = "Daubechies order 20")]
+        [DataRow("bior3.3", "wfilters_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("rbio3.3", "wfilters_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
+        public void TestOrthogonalFilters(string wavName, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            IList<double> lowRec, highRec;
+            using (var reader = new StringReader(valueList))
+            {
+                lowRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
+                highRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
+            }
+            var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
+            Tools.AssertAreEqual(lowRec, wavelet.LowReconstructionFilter, 1e-5);
+            Tools.AssertAreEqual(highRec, wavelet.HighReconstructionFilter, 1e-5);
         }
 
         [TestMethod]

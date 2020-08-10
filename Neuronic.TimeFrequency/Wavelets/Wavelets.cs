@@ -579,7 +579,7 @@ namespace Neuronic.TimeFrequency.Wavelets
                 highDec[i] = ((filterLength - 1 - i) % 2 != 0 ? -1 : 1) * coeff[i];
             }
 
-            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec);
+            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, order);
         }
 
         #endregion
@@ -855,13 +855,13 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         };
 
-        public static OrthogonalWavelet Biorthogonal(int order)
+        public static BiorthogonalWavelet Biorthogonal(int order)
         {
             int highDigit = order / 10, lowDigit = order % 10;
             return Biorthogonal(highDigit, lowDigit);
         }
 
-        public static OrthogonalWavelet Biorthogonal(int highDigit, int lowDigit)
+        public static BiorthogonalWavelet Biorthogonal(int highDigit, int lowDigit)
         {
             int idxLow;
             int maxLow;
@@ -915,16 +915,17 @@ namespace Neuronic.TimeFrequency.Wavelets
                              * coeff[0][i + n];
             }
 
-            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec);
+            var other = new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
+            return new BiorthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit, other);
         }
 
-        public static OrthogonalWavelet ReverseBiorthogonal(int order)
+        public static BiorthogonalWavelet ReverseBiorthogonal(int order)
         {
             int highDigit = order / 10, lowDigit = order % 10;
             return ReverseBiorthogonal(highDigit, lowDigit);
         }
 
-        public static OrthogonalWavelet ReverseBiorthogonal(int highDigit, int lowDigit)
+        public static BiorthogonalWavelet ReverseBiorthogonal(int highDigit, int lowDigit)
         {
             var bior = Biorthogonal(highDigit, lowDigit);
 
@@ -933,7 +934,7 @@ namespace Neuronic.TimeFrequency.Wavelets
             var highRec = bior.HighDecompositionFilter.Reversed();
             var highDec = bior.HighReconstructionFilter.Reversed();
 
-            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec);
+            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
         }
 
         #endregion

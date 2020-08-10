@@ -13,8 +13,9 @@ namespace Neuronic.TimeFrequency.Wavelets
         private readonly double[] _highDecompositionFilter;
         private double _centralFrequency;
 
-        public OrthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, double freq = 0)
+        public OrthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
         {
+            VanishingMoments = vanishingMoments;
             _lowReconstructionFilter = lowRec ?? throw new ArgumentNullException(nameof(lowRec));
             _highReconstructionFilter = highRec ?? throw new ArgumentNullException(nameof(highRec));
             _lowDecompositionFilter = lowDec ?? throw new ArgumentNullException(nameof(lowDec));
@@ -27,12 +28,14 @@ namespace Neuronic.TimeFrequency.Wavelets
             _centralFrequency = freq;
         }
 
-        public OrthogonalWavelet(int filterLength)
-            : this (new double[filterLength], new double[filterLength], new double[filterLength], new double[filterLength])
+        public OrthogonalWavelet(int filterLength, int vanishingMoments)
+            : this (new double[filterLength], new double[filterLength], new double[filterLength], new double[filterLength], vanishingMoments)
         {
         }
 
         public int FilterLength { get; }
+
+        public int VanishingMoments { get; }
 
         public override Complex Energy { get; }
 
@@ -57,9 +60,14 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public double[] HighDecompositionFilter => _highDecompositionFilter;
 
-        private double[] Upcoef(int level, bool recA = false)
+        protected virtual double[] Upcoef(int level, bool recA = false)
         {
             var coeffs = new [] { Math.Pow(Math.Sqrt(2), level) };
+            return Upcoef(coeffs, level, recA);
+        }
+
+        protected virtual double[] Upcoef(double[] coeffs, int level, bool recA = false)
+        {
             for (int i = 0; i < level; i++)
             {
                 int recLen = 2 * coeffs.Length + FilterLength - 2;
@@ -70,6 +78,7 @@ namespace Neuronic.TimeFrequency.Wavelets
                     UpsumplingConvolution(coeffs, HighReconstructionFilter, rec);
                 coeffs = rec;
             }
+
             return coeffs;
         }
 
