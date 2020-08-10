@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -29,14 +30,17 @@ namespace Neuronic.TimeFrequency.Testing
             }
         }
 
-        public static void AssertAreEqual(IList<Complex> expectedValues, IList<Complex> actualValues, Complex delta)
+        public static void AssertAreEqual(IList<Complex> expectedValues, IList<Complex> actualValues, double delta)
         {
             Assert.AreEqual(expectedValues.Count, actualValues.Count);
-            for (int i = 0; i < expectedValues.Count; i++)
-            {
-                Assert.AreEqual(expectedValues[i].Real, actualValues[i].Real, delta.Real);
-                Assert.AreEqual(expectedValues[i].Imaginary, actualValues[i].Imaginary, delta.Imaginary);
-            }
+            //for (int i = 0; i < expectedValues.Count; i++)
+            //{
+            //    Assert.AreEqual(expectedValues[i].Real, actualValues[i].Real, delta.Real);
+            //    Assert.AreEqual(expectedValues[i].Imaginary, actualValues[i].Imaginary, delta.Imaginary);
+            //}
+            var dif = expectedValues.Zip(actualValues, (x, y) => (x - y).Magnitude).Sum();
+            var relDif = dif / expectedValues.Count;
+            Assert.AreEqual(0, relDif, delta);
         }
     }
 }

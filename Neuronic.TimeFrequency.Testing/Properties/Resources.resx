@@ -118,6 +118,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="wavefun_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_bior3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="wavefun_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db10.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="wavefun_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db20.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="wavefun_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="wavefun_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_gaus1.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
@@ -133,10 +145,16 @@
   <data name="wavefun_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_gaus5.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="wavefun_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_haar.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="wavefun_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_mexh.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="wavefun_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_morl.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="wavefun_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_rbio3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>

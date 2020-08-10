@@ -1,0 +1,5 @@
+function R = evalwav(wname)
+[phi, psi, x] = wavefun(wname, 10);
+csvwrite(['wavefun_', wname, '.csv'], psi);
+R = x(-1);
+end

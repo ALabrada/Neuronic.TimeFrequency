@@ -45,7 +45,7 @@ namespace Neuronic.TimeFrequency.Wavelets
                 if (values[i].Magnitude > values[maxIndex].Magnitude)
                     maxIndex = i;
             var domain = values.Length * samplingPeriod;
-            return (maxIndex + 1) / domain;
+            return maxIndex / domain;
         }
 
         protected double EstimateCentralFrequency(double[] values, double samplingPeriod)

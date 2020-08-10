@@ -7,38 +7,6 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public static class Wavelets
     {
-        public static WaveletBase FromName(string name)
-        {
-            var pattern = @"(?<name>haar|mexh|morl|cmor)|(?<name>gaus|db)(?<order>\d+)|(?<name>bior|rbio)(?<high>\d+).(?<low>\d+)";
-            var match = Regex.Match(name, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (!match.Success)
-                throw new ArgumentException("Could not find the specified wavelet.", nameof(name));
-            switch (match.Groups["name"].Value.ToLowerInvariant())
-            {
-                case "haar":
-                    return Haar;
-                case "mexh":
-                    return MexicanHat;
-                case "morl":
-                    return Morlet;
-                case "cmor":
-                    return ComplexMorlet;
-                case "gaus":
-                    return Gaussian(int.Parse(match.Groups["order"].Value));
-                case "db":
-                    return Daubechies(int.Parse(match.Groups["order"].Value));
-                case "bior":
-                    return Biorthogonal(int.Parse(match.Groups["high"].Value), int.Parse(match.Groups["low"].Value));
-                case "rbio":
-                    return ReverseBiorthogonal(int.Parse(match.Groups["high"].Value), int.Parse(match.Groups["low"].Value));
-                default:
-                    return null;
-            }
-        }
-
-        public readonly static ContinuousWavelet Haar =
-            new ContinuousWavelet(t => 0 <= t && t < 0.5 ? 1.0 : 0.5 <= t && t < 1 ? -1.0 : 0, 0.0);
-
         // Mexican Hat
         readonly static double MexicanHatFactor = 2 / Math.Sqrt(3) * Math.Pow(Math.PI, -0.25);
 
@@ -616,6 +584,8 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         #endregion
 
+        public readonly static OrthogonalWavelet Haar = Daubechies(1);
+
         #region Biorthogonal
 
         static double[][][] BiorthogonalCoefficients =
@@ -967,5 +937,34 @@ namespace Neuronic.TimeFrequency.Wavelets
         }
 
         #endregion
+
+        public static WaveletBase FromName(string name)
+        {
+            var pattern = @"(?<name>haar|mexh|morl|cmor)|(?<name>gaus|db)(?<order>\d+)|(?<name>bior|rbio)(?<high>\d+).(?<low>\d+)";
+            var match = Regex.Match(name, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (!match.Success)
+                throw new ArgumentException("Could not find the specified wavelet.", nameof(name));
+            switch (match.Groups["name"].Value.ToLowerInvariant())
+            {
+                case "haar":
+                    return Haar;
+                case "mexh":
+                    return MexicanHat;
+                case "morl":
+                    return Morlet;
+                case "cmor":
+                    return ComplexMorlet;
+                case "gaus":
+                    return Gaussian(int.Parse(match.Groups["order"].Value));
+                case "db":
+                    return Daubechies(int.Parse(match.Groups["order"].Value));
+                case "bior":
+                    return Biorthogonal(int.Parse(match.Groups["high"].Value), int.Parse(match.Groups["low"].Value));
+                case "rbio":
+                    return ReverseBiorthogonal(int.Parse(match.Groups["high"].Value), int.Parse(match.Groups["low"].Value));
+                default:
+                    return null;
+            }
+        }
     }
 }

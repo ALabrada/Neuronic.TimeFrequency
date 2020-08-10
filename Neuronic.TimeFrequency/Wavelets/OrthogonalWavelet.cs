@@ -36,7 +36,18 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public override Complex Energy { get; }
 
-        public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Upcoef(10), 1d / 1024d));
+        public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(10));
+
+        protected double EstimateCentralFrequency(int level)
+        {
+            var p = 1 << level;
+            var phi = Upcoef(level);
+            var values = new Complex[Tools.NextPowerOf2(phi.Length + 2)];
+            var offset = (values.Length - phi.Length) / 2;
+            for (int i = 0; i < phi.Length; i++)
+                values[i + offset] = phi[i];
+            return EstimateCentralFrequency(values, 1d / p);
+        }
 
         public double[] LowReconstructionFilter => _lowReconstructionFilter;
 
@@ -48,17 +59,18 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         private double[] Upcoef(int level, bool recA = false)
         {
-            var coeffs = new double[] { Math.Pow(Math.Sqrt(2), level) };
-            int recLen = 2 * coeffs.Length + FilterLength - 2;
-            var rec = new double[recLen];
+            var coeffs = new [] { Math.Pow(Math.Sqrt(2), level) };
             for (int i = 0; i < level; i++)
             {
+                int recLen = 2 * coeffs.Length + FilterLength - 2;
+                var rec = new double[recLen];
                 if (recA || i > 0)
                     UpsumplingConvolution(coeffs, LowReconstructionFilter, rec);
                 else
                     UpsumplingConvolution(coeffs, HighReconstructionFilter, rec);
+                coeffs = rec;
             }
-            return rec;
+            return coeffs;
         }
 
         private void UpsumplingConvolution(double[] coeff, double[] filter, double[] output)
@@ -108,29 +120,32 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public override void Evaluate(double min, double max, Complex[] values, int start, int count)
         {
-            const int level = 10;
-            var p = 1 << level;
-
-            var outputLength = (FilterLength - 1) * p + 1;
-            var keepLength = Enumerable.Range(0, level).Aggregate(1, (total, _) => total = 2 * total + (FilterLength - 2));
-            if (outputLength - keepLength - 2 < 0)
-                outputLength = keepLength + 2;
-            var rightExtentLength = outputLength - keepLength - 1;
-
-            var psi = Upcoef(level, false);
-            var offset = Math.Max(0, (psi.Length - keepLength) / 2);
-            Array.Clear(psi, 0, offset);
-            Array.Clear(psi, offset + keepLength, psi.Length - offset - keepLength);
-
-            var x = new double[psi.Length];
-            if (x.Length > keepLength)
-            for (int i = 0; i < x.Length; i++)
-                x[i] = (double) (i - offset + 1) / p;
-
+            Evaluate(out var x, out var psi);
             Interpolate(min, max, x, psi, values, start, count);
         }
 
-        private void Interpolate(double min, double max, double[] x, double[] y, Complex[] result, int start, int count)
+        protected virtual void Evaluate(out double[] x, out double[] psi)
+        {
+            const int level = 10;
+            var p = 1 << level;
+
+            var keepLength = Enumerable.Range(0, level).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
+
+            psi = Upcoef(level, false);
+            var offset = 0;
+            if (psi.Length > keepLength)
+            {
+                offset = (psi.Length - keepLength) / 2;
+                Array.Clear(psi, 0, offset);
+                Array.Clear(psi, offset + keepLength, psi.Length - offset - keepLength);
+            }
+
+            x = new double[psi.Length];
+            for (int i = 0; i < x.Length; i++)
+                x[i] = (double) (i - offset + 1) / p;
+        }
+
+        protected virtual void Interpolate(double min, double max, double[] x, double[] y, Complex[] result, int start, int count)
         {           
             var step = (max - min) / (count - 1);
 
@@ -138,6 +153,17 @@ namespace Neuronic.TimeFrequency.Wavelets
             {
                 var t = min + i * step;
                 result[i + start] = Tools.Interpolate1D(t, x, y, 0, 0);
+                //var index = Array.BinarySearch(x, t);
+                //if (index >= 0)
+                //    result[i + start] = y[index];
+                //else
+                //{
+                //    index = ~index;
+                //    if (index == 0 || index == x.Length)
+                //        result[i + start] = 0d;
+                //    else
+                //        result[i + start] = y[index - 1];
+                //}
             }
         }
     }
