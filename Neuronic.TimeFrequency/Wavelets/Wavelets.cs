@@ -588,7 +588,7 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         #region Biorthogonal
 
-        static double[][][] BiorthogonalCoefficients =
+        readonly static double[][][] BiorthogonalCoefficients =
         {
             new[]
             {
@@ -898,25 +898,24 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
 
             var filterLength = (highDigit == 1) ? 2 * lowDigit : 2 * lowDigit + 2;
-            var lowRec = new double[filterLength];
-            var lowDec = new double[filterLength];
-            var highRec = new double[filterLength];
-            var highDec = new double[filterLength];
+            var lowRec2 = new double[filterLength];
+            var lowDec1 = new double[filterLength];
+            var highRec1 = new double[filterLength];
+            var highDec2 = new double[filterLength];
 
             var coeff = BiorthogonalCoefficients[highDigit - 1];
             var n = maxLow - lowDigit;
             for (int i = 0; i < filterLength; i++)
             {
-                lowRec[i] = coeff[0][i + n];
-                lowDec[i] = coeff[idxLow + 1][filterLength - 1 - i];
-                highRec[i] = ((i % 2 != 0) ? -1 : 1)
+                lowRec2[i] = coeff[0][i + n];
+                lowDec1[i] = coeff[idxLow + 1][filterLength - 1 - i];
+                highRec1[i] = ((i % 2 != 0) ? -1 : 1)
                              * coeff[idxLow + 1][filterLength - 1 - i];
-                highDec[i] = (((filterLength - 1 - i) % 2 != 0) ? -1 : 1)
+                highDec2[i] = (((filterLength - 1 - i) % 2 != 0) ? -1 : 1)
                              * coeff[0][i + n];
             }
 
-            var other = new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
-            return new BiorthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit, other);
+            return new BiorthogonalWavelet(lowRec2, highRec1, lowDec1, highDec2, highDigit).Other;
         }
 
         public static BiorthogonalWavelet ReverseBiorthogonal(int order)
@@ -927,14 +926,14 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public static BiorthogonalWavelet ReverseBiorthogonal(int highDigit, int lowDigit)
         {
-            var bior = Biorthogonal(highDigit, lowDigit);
+            var other = Biorthogonal(highDigit, lowDigit);
 
-            var lowRec = bior.LowDecompositionFilter.Reversed();
-            var lowDec = bior.LowReconstructionFilter.Reversed();
-            var highRec = bior.HighDecompositionFilter.Reversed();
-            var highDec = bior.HighReconstructionFilter.Reversed();
+            var lowRec = other.LowDecompositionFilter.Reversed();
+            var lowDec = other.LowReconstructionFilter.Reversed();
+            var highRec = other.HighDecompositionFilter.Reversed();
+            var highDec = other.HighReconstructionFilter.Reversed();
 
-            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
+            return new BiorthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
         }
 
         #endregion

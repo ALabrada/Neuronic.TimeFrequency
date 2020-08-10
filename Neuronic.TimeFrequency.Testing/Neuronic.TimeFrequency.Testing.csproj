@@ -78,17 +78,21 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Resources\wavefun_bior2.6.csv" />
     <None Include="Resources\wavefun_bior3.3.csv" />
     <None Include="Resources\wavefun_db10.csv" />
     <None Include="Resources\wavefun_db20.csv" />
     <None Include="Resources\wavefun_db5.csv" />
     <None Include="Resources\wavefun_haar.csv" />
+    <None Include="Resources\wavefun_rbio1.5.csv" />
     <None Include="Resources\wavefun_rbio3.3.csv" />
+    <None Include="Resources\wfilters_bior2.6.csv" />
     <None Include="Resources\wfilters_bior3.3.csv" />
     <None Include="Resources\wfilters_db10.csv" />
     <None Include="Resources\wfilters_db20.csv" />
     <None Include="Resources\wfilters_db5.csv" />
     <None Include="Resources\wfilters_haar.csv" />
+    <None Include="Resources\wfilters_rbio1.5.csv" />
     <None Include="Resources\wfilters_rbio3.3.csv" />
   </ItemGroup>
   <ItemGroup>

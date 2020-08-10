@@ -4,8 +4,9 @@ function savewfilters(wname)
 switch wtype
     case 1
         [Lo_R,Hi_R] = wfilters(wname,'r');
+        csvwrite(['wfilters_', wname, '.csv'], [Lo_R;Hi_R]);
     case 2
-        [~,~,~,~,~,~,Lo_R,Hi_R] = wfilters(wname);
+        [~,~,Lo_R2,Hi_R1,~,~,Lo_R1,Hi_R2] = wfilters(wname);        
+        csvwrite(['wfilters_', wname, '.csv'], [Lo_R1;Hi_R2;Lo_R2;Hi_R1]);
 end
-csvwrite(['wfilters_', wname, '.csv'], [Lo_R;Hi_R]);
 end

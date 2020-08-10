@@ -1,12 +1,23 @@
-﻿namespace Neuronic.TimeFrequency.Wavelets
+﻿using Accord.Math;
+using System;
+
+namespace Neuronic.TimeFrequency.Wavelets
 {
     public class BiorthogonalWavelet : OrthogonalWavelet
     {
-        public BiorthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, OrthogonalWavelet other, double freq = 0) : base(lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
+        public BiorthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
+             : base(lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
         {
+            Other = new BiorthogonalWavelet(this, lowDec.Reversed(), highDec.Reversed(), lowRec.Reversed(), highRec.Reversed(), vanishingMoments, freq);
         }
 
-        public OrthogonalWavelet Other { get; }
+        protected BiorthogonalWavelet(BiorthogonalWavelet reverse, double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
+             : base(lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
+        {
+            Other = reverse;
+        }
+
+        public BiorthogonalWavelet Other { get; private set; }
 
         protected override double[] Upcoef(double[] coeffs, int level, bool recA = false)
         {

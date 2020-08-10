@@ -25,8 +25,7 @@ namespace Neuronic.TimeFrequency.Testing
 
         public void TestEvaluatingContinuousWavelets(string wavName, string valueList)
         {
-            var resources = new ResourceManager("Neuronic.TimeFrequency.Testing.Properties.Resources",
-                typeof(Resources).Assembly);
+            var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
             var expectedValues = Tools.ReadNumbersFrom(valueList).Select(c => (Complex) c).ToList();
 
@@ -43,11 +42,12 @@ namespace Neuronic.TimeFrequency.Testing
         [DataRow("db10", "wavefun_db10", DisplayName = "Daubechies order 10")]
         [DataRow("db20", "wavefun_db20", DisplayName = "Daubechies order 20")]
         [DataRow("bior3.3", "wavefun_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("bior2.6", "wavefun_bior2_6", DisplayName = "Biorthogonal 3.6")]
         [DataRow("rbio3.3", "wavefun_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("rbio1.5", "wavefun_rbio1_5", DisplayName = "Reverse biorthogonal 1.5")]
         public void TestEvaluatingOrthogonalWavelets(string wavName, string valueList)
         {
-            var resources = new ResourceManager("Neuronic.TimeFrequency.Testing.Properties.Resources",
-                typeof(Resources).Assembly);
+            var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
             IList<float> x;
             IList<Complex> expectedValues;
@@ -70,20 +70,32 @@ namespace Neuronic.TimeFrequency.Testing
         [DataRow("db10", "wfilters_db10", DisplayName = "Daubechies order 10")]
         [DataRow("db20", "wfilters_db20", DisplayName = "Daubechies order 20")]
         [DataRow("bior3.3", "wfilters_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("bior2.6", "wfilters_bior2_6", DisplayName = "Biorthogonal 3.6")]
         [DataRow("rbio3.3", "wfilters_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("rbio1.5", "wfilters_rbio1_5", DisplayName = "Reverse biorthogonal 1.5")]
         public void TestOrthogonalFilters(string wavName, string valueList)
         {
+            var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
             var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
-            IList<double> lowRec, highRec;
+            IList<double> lowRec, highRec, lowRec2 = null, highRec2 = null;
             using (var reader = new StringReader(valueList))
             {
                 lowRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
                 highRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
+                if (wavelet is BiorthogonalWavelet)
+                {
+                    lowRec2 = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToList();
+                    highRec2 = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToList();
+                }
             }
-            var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
             Tools.AssertAreEqual(lowRec, wavelet.LowReconstructionFilter, 1e-5);
             Tools.AssertAreEqual(highRec, wavelet.HighReconstructionFilter, 1e-5);
+            if (wavelet is BiorthogonalWavelet bior)
+            {
+                Tools.AssertAreEqual(lowRec2, bior.Other.LowReconstructionFilter, 1e-5);
+                Tools.AssertAreEqual(highRec2, bior.Other.HighReconstructionFilter, 1e-5);
+            }
         }
 
         [TestMethod]
@@ -108,8 +120,8 @@ namespace Neuronic.TimeFrequency.Testing
         [DataRow("db5", 0.6667, DisplayName = "Daubechies order 5")]
         [DataRow("db10", 0.6842, DisplayName = "Daubechies order 10")]
         [DataRow("db20", 0.6667, DisplayName = "Daubechies order 20")]
-        //[DataRow("bior3.3", 1d, DisplayName = "Biorthogonal 3.3")]
-        //[DataRow("rbio3.3", 0.4286, DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("bior3.3", 1d, DisplayName = "Biorthogonal 3.3")]
+        [DataRow("rbio3.3", 0.4286, DisplayName = "Reverse biorthogonal 3.3")]
         public void TestCentralFrequencyOfOrthogonalWavelets(string wavName, double expectedValue)
         {
             var wavelet = Wavelets.Wavelets.FromName(wavName);
