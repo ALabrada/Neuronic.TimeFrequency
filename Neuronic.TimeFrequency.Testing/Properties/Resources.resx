@@ -118,6 +118,42 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="cwt_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_bior2.6.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_bior3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db10.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db20.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_gaus1.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_gaus5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_haar.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_mexh.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_morl.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_rbio1.5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="cwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_rbio3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="wavefun_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_bior2.6.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

@@ -4,60 +4,47 @@ using System.Numerics;
 namespace Neuronic.TimeFrequency.Wavelets
 {
     public class ContinuousWavelet : WaveletBase
-    {   
+    {
         private readonly Func<double, Complex> _func;
+        private double _centralFrequency;
 
-        public ContinuousWavelet(Func<double, Complex> func, 
-            double freq = 0d, Complex? energy = null, 
+        public ContinuousWavelet(Func<double, Complex> func,
+            double freq = 0d, Complex? energy = null,
             double min = double.NegativeInfinity, double max = double.PositiveInfinity)
         {
             _func = func ?? throw new ArgumentNullException(nameof(func));
-            CentralFrequency = freq;
+            _centralFrequency = freq;
             Minimum = min;
             Maximum = max;
-
-            var count = 1024;
-            if (double.IsInfinity(min))
-                min = 0;
-            if (double.IsInfinity(max))
-                max = 10;
-            Complex[] values = null;
-            if (CentralFrequency <= 0)
-            {                
-                values = Evaluate(min, max, count);
-                CentralFrequency = EstimateCentralFrequency(values, (max - min) / (count - 1));
-            }
-            if (energy.HasValue)
-                Energy = energy.Value;
-            else
-            {
-                values = values ?? Evaluate(min, max, count);
-                Energy = EstimateEnergy(values, min, max);
-            }
         }
 
-        public ContinuousWavelet(Func<double, double> func, 
+        public ContinuousWavelet(Func<double, double> func,
             double freq = 0d, double energy = 0d,
             double min = double.NegativeInfinity, double max = double.PositiveInfinity)
-            : this (new Func<double, Complex>(x => func(x)), freq, energy, min, max)
+            : this(new Func<double, Complex>(x => func(x)), freq, energy, min, max)
         {
         }
 
         public override Complex Energy { get; }
 
-        public override double CentralFrequency { get; }
-
+        public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
         public virtual double Minimum { get; }
 
         public virtual double Maximum { get; }
 
         public Complex Evaluate(double time) => _func(time);
 
-        public override void Evaluate(double min, double max, Complex[] values, int start, int count)
+        public override void Evaluate(Signal<Complex> signal)
         {
-            var step = (max - min) / (count - 1);
-            for (int i = 0; i < count; i++)
-                values[i + start] = Evaluate(min + i * step);
+            var step = signal.SamplingPeriod;
+            var min = signal.Delay;
+            for (int i = 0; i < signal.Count; i++)
+                signal[i] = Evaluate(min + i * step);
+        }
+
+        public override Signal<Complex> Evaluate()
+        {
+            return Evaluate(Minimum, Maximum, 1024);
         }
     }
 }

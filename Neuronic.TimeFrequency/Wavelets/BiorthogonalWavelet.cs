@@ -19,11 +19,11 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public BiorthogonalWavelet Other { get; private set; }
 
-        protected override double[] Upcoef(double[] coeffs, int level, bool recA = false)
+        protected override double[] Upcoef(double[] coeffs, int level)
         {
             if (VanishingMoments % 4 != 1)
                 coeffs[0] *= -1;
-            return base.Upcoef(coeffs, level, recA);
+            return base.Upcoef(coeffs, level);
         }
     }
 }

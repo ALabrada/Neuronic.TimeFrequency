@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Accord.Math;
@@ -12,6 +13,7 @@ namespace Neuronic.TimeFrequency.Wavelets
         private readonly double[] _lowDecompositionFilter;
         private readonly double[] _highDecompositionFilter;
         private double _centralFrequency;
+        private readonly Dictionary<int, double[]> _psiCache = new Dictionary<int, double[]>();
 
         public OrthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
         {
@@ -60,19 +62,23 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public double[] HighDecompositionFilter => _highDecompositionFilter;
 
-        protected virtual double[] Upcoef(int level, bool recA = false)
+        protected virtual double[] Upcoef(int level)
         {
+            if (_psiCache.TryGetValue(level, out var psi))
+                return psi;
             var coeffs = new [] { Math.Pow(Math.Sqrt(2), level) };
-            return Upcoef(coeffs, level, recA);
+            psi = Upcoef(coeffs, level);
+            _psiCache[level] = psi;
+            return psi;
         }
 
-        protected virtual double[] Upcoef(double[] coeffs, int level, bool recA = false)
+        protected virtual double[] Upcoef(double[] coeffs, int level)
         {
             for (int i = 0; i < level; i++)
             {
                 int recLen = 2 * coeffs.Length + FilterLength - 2;
                 var rec = new double[recLen];
-                if (recA || i > 0)
+                if (i > 0)
                     UpsumplingConvolution(coeffs, LowReconstructionFilter, rec);
                 else
                     UpsumplingConvolution(coeffs, HighReconstructionFilter, rec);
@@ -127,20 +133,37 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         }
 
-        public override void Evaluate(double min, double max, Complex[] values, int start, int count)
+        public override void Evaluate(Signal<Complex> signal)
         {
-            Evaluate(out var x, out var psi);
-            Interpolate(min, max, x, psi, values, start, count);
+            var phi = ProtectedEvaluate();
+            Interpolate(phi, signal);
         }
 
-        protected virtual void Evaluate(out double[] x, out double[] psi)
+        public virtual void Evaluate(Signal<double> signal)
+        {
+            var phi = ProtectedEvaluate();
+            Interpolate(phi, signal);
+        }
+
+        public override Signal<Complex> Evaluate()
+        {
+            var phi = ProtectedEvaluate();
+            var values = new Complex[phi.Count + 2];
+            var offset = 1;
+            for (int i = 0; i < phi.Count; i++)
+                values[i + offset] = phi[i];
+           
+            return new Signal<Complex>(values, phi.Delay - (offset * phi.SamplingPeriod), phi.SamplingRate);
+        }
+
+        protected virtual Signal<double> ProtectedEvaluate()
         {
             const int level = 10;
             var p = 1 << level;
 
             var keepLength = Enumerable.Range(0, level).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
 
-            psi = Upcoef(level, false);
+            var psi = Upcoef(level);
             var offset = 0;
             if (psi.Length > keepLength)
             {
@@ -149,19 +172,31 @@ namespace Neuronic.TimeFrequency.Wavelets
                 Array.Clear(psi, offset + keepLength, psi.Length - offset - keepLength);
             }
 
-            x = new double[psi.Length];
-            for (int i = 0; i < x.Length; i++)
-                x[i] = (double) (i - offset + 1) / p;
+            return new Signal<double>(psi, (double)(offset + 1) / p, p);
         }
 
-        protected virtual void Interpolate(double min, double max, double[] x, double[] y, Complex[] result, int start, int count)
-        {           
-            var step = (max - min) / (count - 1);
+        protected virtual double[] EvaluateTimeFor<T>(Signal<T> signal)
+        {
+            var x = new double[signal.Count];
+            var min = signal.Delay;
+            var step = signal.SamplingPeriod;
+            for (int i = 0; i < x.Length; i++)
+                x[i] = min + i * step;
+            return x;
+        }
+
+        protected virtual void Interpolate(Signal<double> input, Signal<Complex> result)
+        {
+            var x = EvaluateTimeFor(input);
+            var y = input.Samples;
+            var count = result.Count;
+            var step = result.SamplingPeriod;
+            var min = result.Delay;
 
             for (int i = 0; i < count; i++)
             {
                 var t = min + i * step;
-                result[i + start] = Tools.Interpolate1D(t, x, y, 0, 0);
+                result[i] = Tools.Interpolate1D(t, x, y, 0, 0);
                 //var index = Array.BinarySearch(x, t);
                 //if (index >= 0)
                 //    result[i + start] = y[index];
@@ -169,9 +204,35 @@ namespace Neuronic.TimeFrequency.Wavelets
                 //{
                 //    index = ~index;
                 //    if (index == 0 || index == x.Length)
-                //        result[i + start] = 0d;
+                //        result[i] = 0d;
                 //    else
-                //        result[i + start] = y[index - 1];
+                //        result[i] = y[index - 1];
+                //}
+            }
+        }
+
+        protected virtual void Interpolate(Signal<double> input, Signal<double> result)
+        {
+            var x = EvaluateTimeFor(input);
+            var y = input.Samples;
+            var count = result.Count;
+            var step = result.SamplingPeriod;
+            var min = result.Delay;
+
+            for (int i = 0; i < count; i++)
+            {
+                var t = min + i * step;
+                result[i] = Tools.Interpolate1D(t, x, y, 0, 0);
+                //var index = Array.BinarySearch(x, t);
+                //if (index >= 0)
+                //    result[i + start] = y[index];
+                //else
+                //{
+                //    index = ~index;
+                //    if (index == 0 || index == x.Length)
+                //        result[i] = 0d;
+                //    else
+                //        result[i] = y[index - 1];
                 //}
             }
         }

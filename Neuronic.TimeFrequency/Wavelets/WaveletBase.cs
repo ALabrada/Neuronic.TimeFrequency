@@ -9,9 +9,8 @@ namespace Neuronic.TimeFrequency.Wavelets
     {
         public abstract Complex Energy { get; }
 
-        protected Complex EstimateEnergy(Complex[] values, double min, double max)
+        protected Complex EstimateEnergy(Complex[] values, double min, double step)
         {
-            var step = (max - min) / (values.Length - 1);
             var sum = Complex.Zero;
             for (int i = 0; i < values.Length; i++)
             {
@@ -22,9 +21,13 @@ namespace Neuronic.TimeFrequency.Wavelets
             return 2 * Math.PI * sum;
         }
 
-        protected Complex EstimateEnergy(double[] values, double min, double max)
+        protected Complex EstimateEnergy(Signal<Complex> signal)
         {
-            var step = (max - min) / (values.Length - 1);
+            return EstimateEnergy(signal.Samples, signal.Delay, signal.SamplingPeriod);
+        }
+
+        protected double EstimateEnergy(double[] values, double min, double step)
+        {
             var sum = 0d;
             for (int i = 0; i < values.Length; i++)
             {
@@ -33,6 +36,11 @@ namespace Neuronic.TimeFrequency.Wavelets
                 sum += step * y * y / x;
             }
             return 2 * Math.PI * sum;
+        }
+
+        protected double EstimateEnergy(Signal<double> signal)
+        {
+            return EstimateEnergy(signal.Samples, signal.Delay, signal.SamplingPeriod);
         }
 
         public abstract double CentralFrequency { get; }
@@ -48,18 +56,24 @@ namespace Neuronic.TimeFrequency.Wavelets
             return maxIndex / domain;
         }
 
+        protected double EstimateCentralFrequency(Signal<Complex> signal) => EstimateCentralFrequency(signal.Samples, signal.SamplingPeriod);
+
         protected double EstimateCentralFrequency(double[] values, double samplingPeriod)
         {
             return EstimateCentralFrequency(values.ToComplex(), samplingPeriod);
         }
 
-        public Complex[] Evaluate(double min, double max, int count)
+        protected double EstimateCentralFrequency(Signal<double> signal) => EstimateCentralFrequency(signal.Samples, signal.SamplingPeriod);
+
+        public virtual Signal<Complex> Evaluate(double min, double max, int count)
         {
-            var result = new Complex[count];
-            Evaluate(min, max, result, 0, count);
-            return result;
+            var values = new Complex[count];
+            var signal = new Signal<Complex>(values, min, (count - 1)/ (max - min));
+            Evaluate(signal);
+            return signal;
         }
 
-        public abstract void Evaluate(double min, double max, Complex[] values, int start, int count);
+        public abstract void Evaluate(Signal<Complex> signal);
+        public abstract Signal<Complex> Evaluate();
     }
 }

@@ -69,6 +69,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Tools.cs" />
+    <Compile Include="TransformTests.cs" />
     <Compile Include="WaveletTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -78,6 +79,18 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Resources\cwt_bior2.6.csv" />
+    <None Include="Resources\cwt_bior3.3.csv" />
+    <None Include="Resources\cwt_db10.csv" />
+    <None Include="Resources\cwt_db20.csv" />
+    <None Include="Resources\cwt_db5.csv" />
+    <None Include="Resources\cwt_gaus1.csv" />
+    <None Include="Resources\cwt_gaus5.csv" />
+    <None Include="Resources\cwt_haar.csv" />
+    <None Include="Resources\cwt_mexh.csv" />
+    <None Include="Resources\cwt_morl.csv" />
+    <None Include="Resources\cwt_rbio1.5.csv" />
+    <None Include="Resources\cwt_rbio3.3.csv" />
     <None Include="Resources\wavefun_bior2.6.csv" />
     <None Include="Resources\wavefun_bior3.3.csv" />
     <None Include="Resources\wavefun_db10.csv" />

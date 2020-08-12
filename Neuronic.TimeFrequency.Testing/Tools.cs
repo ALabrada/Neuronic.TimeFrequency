@@ -30,7 +30,7 @@ namespace Neuronic.TimeFrequency.Testing
             }
         }
 
-        public static void AssertAreEqual(IList<Complex> expectedValues, IList<Complex> actualValues, double delta)
+        public static void AssertAreEqual(IReadOnlyList<Complex> expectedValues, IReadOnlyList<Complex> actualValues, double delta)
         {
             Assert.AreEqual(expectedValues.Count, actualValues.Count);
             var dif = expectedValues.Zip(actualValues, (x, y) => (x - y).Magnitude).Sum();
@@ -38,7 +38,7 @@ namespace Neuronic.TimeFrequency.Testing
             Assert.AreEqual(0, relDif, delta);
         }
 
-        public static void AssertAreEqual(IList<double> expectedValues, IList<double> actualValues, double delta)
+        public static void AssertAreEqual(IReadOnlyList<double> expectedValues, IReadOnlyList<double> actualValues, double delta)
         {
             Assert.AreEqual(expectedValues.Count, actualValues.Count);
             var dif = expectedValues.Zip(actualValues, (x, y) => Math.Abs(x - y)).Sum();

@@ -49,8 +49,8 @@ namespace Neuronic.TimeFrequency.Testing
         {
             var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
-            IList<float> x;
-            IList<Complex> expectedValues;
+            List<float> x;
+            List<Complex> expectedValues;
             using (var reader = new StringReader(valueList))
             {
                 expectedValues = Tools.ReadNumbersFrom(reader.ReadLine()).Select(c => (Complex)c).ToList();
@@ -78,7 +78,7 @@ namespace Neuronic.TimeFrequency.Testing
             var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
             var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
-            IList<double> lowRec, highRec, lowRec2 = null, highRec2 = null;
+            List<double> lowRec, highRec, lowRec2 = null, highRec2 = null;
             using (var reader = new StringReader(valueList))
             {
                 lowRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();

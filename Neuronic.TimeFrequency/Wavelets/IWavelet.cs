@@ -4,8 +4,9 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public interface IWavelet
     {
-        Complex[] Evaluate(double min, double max, int count);
-        void Evaluate(double min, double max, Complex[] values, int start, int count);
+        Signal<Complex> Evaluate();
+        Signal<Complex> Evaluate(double min, double max, int count);
+        void Evaluate(Signal<Complex> signal);
         Complex Energy { get; }
         double CentralFrequency { get; }
     }
