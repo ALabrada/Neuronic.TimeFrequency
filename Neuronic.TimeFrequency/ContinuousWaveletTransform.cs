@@ -26,45 +26,76 @@ namespace Neuronic.TimeFrequency
         {            
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
-            wavelet = wavelet ?? Wavelets.Wavelets.Haar;
+            wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
 
-            var general = new Complex[signal.Count];
+            var yHat = new Complex[Tools.NextPowerOf2(signal.Count)];
             for (int offset = 0; offset < signal.Count; offset++)
-                general[offset] = signal.Count;
-            FourierTransform2.DFT(general, FourierTransform.Direction.Forward);
+                yHat[offset] = signal.Count;
+            FourierTransform2.FFT(yHat, FourierTransform.Direction.Forward);
 
-
+            var oms = 2 * Math.PI / signal.SamplingPeriod;
             var values = new Complex[signal.Count, scaleArray.Length];
-            var scaled = new Complex[signal.Count];
+            var psiScale = new Complex[signal.Count];
 
             for (int scale = 0; scale < scaleArray.Length; scale++)
             {                
-                var dt = (signal.Count - 1) * signal.SamplingPeriod / scaleArray[scale];
-                var phi = new Signal<Complex>(scaled, -dt, signal.SamplingRate);
-                wavelet.Evaluate(phi);
-                Array.Reverse(scaled, 0, scaled.Length);
+                var dt = 0.5 * (signal.Count - 1) * signal.SamplingPeriod / scaleArray[scale];
+                var psi = new Signal<Complex>(psiScale, -dt, signal.SamplingRate);
+                wavelet.Evaluate(psi);
+                psi.Conjugate();
+                Array.Reverse(psiScale, 0, psiScale.Length);
+
+                FourierTransform2.FFT(psiScale, FourierTransform.Direction.Forward);
+
+                var factor = 1d / Complex.Sqrt(Math.Abs(scaleArray[scale]));                
+                for (int offset = 0; offset < signal.Count; offset++)
+                {
+                    var trans = Complex.Exp(new Complex(0, -1) * -dt * offset * oms / signal.Count);
+                    psiScale[offset] = factor * trans * psiScale[offset] * yHat[offset];
+                }
+
+                FourierTransform2.FFT(psiScale, FourierTransform.Direction.Backward);
 
                 for (int offset = 0; offset < signal.Count; offset++)
-                    scaled[offset] = Complex.Conjugate(scaled[offset]);
-
-                FourierTransform2.DFT(scaled, FourierTransform.Direction.Forward);
-
-                var factor = 1d / Complex.Sqrt(wavelet.Energy * Math.Abs(scaleArray[scale]));
-                for (int offset = 0; offset < signal.Count; offset++)
-                    scaled[offset] = factor * scaled[offset] * general[offset];
-
-                FourierTransform2.DFT(scaled, FourierTransform.Direction.Backward);
-
-                for (int offset = 0; offset < signal.Count; offset++)
-                    values[offset, scale] = scaled[offset];
+                    values[offset, scale] = psiScale[offset];
             }
 
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
-        public static ContinuousWaveletTransform EstimateAsMatlab(Signal<float> signal, IWavelet wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(Signal<float> signal, IWavelet wavelet, IEnumerable<double> scales)
         {
-            throw new NotImplementedException();
+            scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
+            var scaleArray = scales.ToArray();
+            wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
+
+            var psi = wavelet.Evaluate();
+            psi.Integrate();
+            psi.Conjugate();
+
+            var values = new Complex[signal.Count, scaleArray.Length];
+            var buffer = new Complex[signal.Count + 2];
+            for (int scale = 0; scale < scaleArray.Length; scale++)
+            {
+                var scaleSig = scaleArray[scale] / signal.SamplingPeriod;
+
+                var f = new Complex[(int)Math.Ceiling(scaleSig * psi.Duration)];
+                for (int i = 0; i < f.Length; i++)
+                {
+                    var j = (int)Math.Floor(i / (scaleSig * psi.SamplingPeriod));
+                    f[f.Length - i - 1] = psi[j];
+                }
+                if (f.Length <= 2)
+                    f = new Complex[] { psi[0], psi[0] };
+                SignalExtensions.Convolve(signal.Samples, f, buffer);
+                new Signal<Complex>(buffer).Differentiate();
+
+                var factor = -Math.Sqrt(scaleArray[scale]);
+                for (int i = 0; i < signal.Count; i++)                
+                    values[i, scale] = factor * buffer[i + 1];                
+            }
+
+            return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
         public double SamplingPeriod { get; }

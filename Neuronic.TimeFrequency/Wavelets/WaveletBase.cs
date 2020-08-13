@@ -7,7 +7,14 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public abstract class WaveletBase : IWavelet
     {
-        public abstract Complex Energy { get; }
+        private Complex _energy;
+        private double _centralFrequency;
+
+        public virtual Complex Energy
+        {
+            get => _energy != Complex.Zero ? _energy : (_energy = EstimateEnergy(Evaluate()));
+            protected set => _energy = value;
+        }
 
         protected Complex EstimateEnergy(Complex[] values, double min, double step)
         {
@@ -43,7 +50,11 @@ namespace Neuronic.TimeFrequency.Wavelets
             return EstimateEnergy(signal.Samples, signal.Delay, signal.SamplingPeriod);
         }
 
-        public abstract double CentralFrequency { get; }
+        public virtual double CentralFrequency
+        {
+            get => _centralFrequency >= 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
+            protected set => _centralFrequency = value;
+        }
 
         protected double EstimateCentralFrequency(Complex[] values, double samplingPeriod)
         {
@@ -68,7 +79,7 @@ namespace Neuronic.TimeFrequency.Wavelets
         public virtual Signal<Complex> Evaluate(double min, double max, int count)
         {
             var values = new Complex[count];
-            var signal = new Signal<Complex>(values, min, (count - 1)/ (max - min));
+            var signal = new Signal<Complex>(values, min, (count - 1) / (max - min));
             Evaluate(signal);
             return signal;
         }

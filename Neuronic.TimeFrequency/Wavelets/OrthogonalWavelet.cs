@@ -39,8 +39,6 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public int VanishingMoments { get; }
 
-        public override Complex Energy { get; }
-
         public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(10));
 
         protected double EstimateCentralFrequency(int level)

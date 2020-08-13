@@ -21,7 +21,31 @@ namespace Neuronic.TimeFrequency
             for (int i = 0; i < x.Count; i++)
             {
                 sum += x[i];
-                x[i] = sum / (i * x.SamplingPeriod);
+                x[i] = sum * x.SamplingPeriod;
+            }
+        }
+
+        public static void Conjugate(this Signal<Complex> x)
+        {
+            for (int i = 0; i < x.Count; i++)
+                x[i] = Complex.Conjugate(x[i]);
+        }
+
+        public static void Differentiate(this Signal<Complex> x)
+        {
+            for (int i = 1; i < x.Count; i++)
+                x[i - 1] = x[i] - x[i - 1];
+        }
+
+        public static void Convolve(this float[] samples, Complex[] kernel, Complex[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                var sum = Complex.Zero;
+                var start = i - (result.Length + 1) / 2 - (kernel.Length + 1) / 2 + (samples.Length + 1) / 2;
+                for (var j = Math.Max(0, -start); j < kernel.Length && j + start < samples.Length; j++)                
+                    sum += samples[j + start] * kernel[kernel.Length - 1 - j];
+                result[i] = sum;
             }
         }
     }

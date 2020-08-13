@@ -25,8 +25,6 @@ namespace Neuronic.TimeFrequency.Wavelets
         {
         }
 
-        public override Complex Energy { get; }
-
         public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
         public virtual double Minimum { get; }
 
