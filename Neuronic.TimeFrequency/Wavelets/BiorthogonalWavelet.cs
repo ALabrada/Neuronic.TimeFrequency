@@ -19,6 +19,8 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public BiorthogonalWavelet Other { get; private set; }
 
+        protected override int DesiredOutputSize => base.DesiredOutputSize - 1;
+
         protected override double[] Upcoef(double[] coeffs, int level)
         {
             if (VanishingMoments % 4 != 1)

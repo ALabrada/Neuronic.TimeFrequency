@@ -53,15 +53,18 @@ namespace Neuronic.TimeFrequency.Testing
             List<Complex> expectedValues;
             using (var reader = new StringReader(valueList))
             {
-                expectedValues = Tools.ReadNumbersFrom(reader.ReadLine()).Select(c => (Complex)c).ToList();
                 x = Tools.ReadNumbersFrom(reader.ReadLine()).ToList();
+                expectedValues = Tools.ReadNumbersFrom(reader.ReadLine()).Select(c => (Complex)c).ToList();
             }
 
             var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            var actualValues = wavelet.Evaluate(x[0], x[x.Count - 1], x.Count);
+            //var actualValues = new Complex[expectedValues.Count];
+            //var signal = wavelet.Evaluate();
+            //Array.Copy(signal.Samples, actualValues, signal.Count);
+            var actualValues = wavelet.Evaluate();
 
-            Tools.AssertAreEqual(expectedValues, actualValues, 1e-3);
+            Tools.AssertAreEqual(expectedValues, actualValues, 1e-5);
         }
 
         [TestMethod]

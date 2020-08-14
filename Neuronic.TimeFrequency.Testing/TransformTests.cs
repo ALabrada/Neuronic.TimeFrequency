@@ -51,6 +51,10 @@ namespace Neuronic.TimeFrequency.Testing
         [DataRow("mexh", "cwt_mexh", DisplayName = "Mexican Hat")]
         [DataRow("gaus1", "cwt_gaus1", DisplayName = "Gaussian order 1")]
         [DataRow("gaus5", "cwt_gaus5", DisplayName = "Gaussian order 5")]
+        [DataRow("db5", "cwt_db5", DisplayName = "Daubechies order 5")]
+        [DataRow("db20", "cwt_db20", DisplayName = "Daubechies order 20")]
+        [DataRow("bior3.3", "cwt_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("rbio3.3", "cwt_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
 
         public void TestContinuousWaveletTransformUsingConvolution(string wavName, string valueList)
         {

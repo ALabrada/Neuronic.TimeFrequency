@@ -8,6 +8,8 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public class OrthogonalWavelet : WaveletBase
     {
+        protected const int PrecissionLevel = 10;
+
         private readonly double[] _lowReconstructionFilter;
         private readonly double[] _highReconstructionFilter;
         private readonly double[] _lowDecompositionFilter;
@@ -59,6 +61,8 @@ namespace Neuronic.TimeFrequency.Wavelets
         public double[] LowDecompositionFilter => _lowDecompositionFilter;
 
         public double[] HighDecompositionFilter => _highDecompositionFilter;
+
+        protected virtual int DesiredOutputSize => (FilterLength - 1) * (1 << PrecissionLevel) + 1;
 
         protected virtual double[] Upcoef(int level)
         {
@@ -145,23 +149,24 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public override Signal<Complex> Evaluate()
         {
-            var phi = ProtectedEvaluate();
-            var values = new Complex[phi.Count + 2];
+            var psi = ProtectedEvaluate();
+            var outputLength = Math.Max(psi.Count + 2, DesiredOutputSize);
+
+            var values = new Complex[outputLength];
             var offset = 1;
-            for (int i = 0; i < phi.Count; i++)
-                values[i + offset] = phi[i];
+            for (int i = 0; i < psi.Count; i++)
+                values[i + offset] = psi[i];
            
-            return new Signal<Complex>(values, phi.Delay - (offset * phi.SamplingPeriod), phi.SamplingRate);
+            return new Signal<Complex>(values, psi.Delay - (offset * psi.SamplingPeriod), psi.SamplingRate);
         }
 
         protected virtual Signal<double> ProtectedEvaluate()
         {
-            const int level = 10;
-            var p = 1 << level;
+            var p = 1 << PrecissionLevel;
 
-            var keepLength = Enumerable.Range(0, level).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
+            var keepLength = Enumerable.Range(0, PrecissionLevel).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
 
-            var psi = Upcoef(level);
+            var psi = Upcoef(PrecissionLevel);
             var offset = 0;
             if (psi.Length > keepLength)
             {
