@@ -37,14 +37,23 @@ namespace Neuronic.TimeFrequency
                 x[i - 1] = x[i] - x[i - 1];
         }
 
-        public static void Convolve(this float[] samples, Complex[] kernel, Complex[] result)
+        public static IEnumerable<T> Sample<T>(this Signal<T> psi, double freq)
         {
-            for (int i = 0; i < result.Length; i++)
+            for (int i = 0; i < freq * psi.Count * psi.SamplingPeriod; i++)
+            {
+                var j = (int)Math.Floor(i / (freq * psi.SamplingPeriod));
+                yield return psi[j];
+            }
+        }
+
+        public static void Convolve(this IList<float> samples, IList<Complex> kernel, IList<Complex> result)
+        {
+            for (int i = 0; i < result.Count; i++)
             {
                 var sum = Complex.Zero;
-                var start = i - (result.Length + 1) / 2 - (kernel.Length + 1) / 2 + (samples.Length + 1) / 2;
-                for (var j = Math.Max(0, -start); j < kernel.Length && j + start < samples.Length; j++)                
-                    sum += samples[j + start] * kernel[kernel.Length - 1 - j];
+                var start = i - (result.Count + 1) / 2 - (kernel.Count + 1) / 2 + (samples.Count + 1) / 2;
+                for (var j = Math.Max(0, -start); j < kernel.Count && j + start < samples.Count; j++)                
+                    sum += samples[j + start] * kernel[kernel.Count - 1 - j];
                 result[i] = sum;
             }
         }

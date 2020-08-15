@@ -75,19 +75,17 @@ namespace Neuronic.TimeFrequency
 
             var values = new Complex[signal.Count, scaleArray.Length];
             var buffer = new Complex[signal.Count + 2];
+            var kernel = new List<Complex>(psi.Count);
             for (int scale = 0; scale < scaleArray.Length; scale++)
             {
-                var scaleSig = scaleArray[scale] / signal.SamplingPeriod;
+                var freq = scaleArray[scale] / signal.SamplingPeriod;
+                kernel.Clear();
+                kernel.AddRange(psi.Sample(freq));
+                while (kernel.Count <= 2)
+                    kernel.Add(psi[0]);
+                kernel.Reverse();
 
-                var f = new Complex[(int)Math.Ceiling(scaleSig * psi.Count * psi.SamplingPeriod)];
-                for (int i = 0; i < f.Length; i++)
-                {
-                    var j = (int)Math.Floor(i / (scaleSig * psi.SamplingPeriod));
-                    f[f.Length - i - 1] = psi[j];
-                }
-                if (f.Length <= 2)
-                    f = new Complex[] { psi[0], psi[0] };
-                SignalExtensions.Convolve(signal.Samples, f, buffer);
+                signal.Samples.Convolve(kernel, buffer);
                 new Signal<Complex>(buffer).Differentiate();
 
                 var factor = -Math.Sqrt(scaleArray[scale]);
