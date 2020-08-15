@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Neuronic.TimeFrequency.Testing
@@ -27,6 +28,21 @@ namespace Neuronic.TimeFrequency.Testing
             {
                 if (float.TryParse(part, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                     yield return value;
+            }
+        }
+
+        public static IEnumerable<Complex> ReadComplexNumbersFrom(string str)
+        {
+            var parts = str.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+            var regex = new Regex(@"(?<re>-?[\d\.]+(e(-?\d+))?)?((?<im>(-|\+)?[\d\.]+(e(-?\d+))?)i)?", RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+            foreach (var part in parts)
+            {
+                var match = regex.Match(part);
+                if (!match.Success)
+                    continue;
+                if (float.TryParse(match.Groups["re"]?.Value ?? "0", NumberStyles.Any, CultureInfo.InvariantCulture, out var re) &&
+                    float.TryParse(match.Groups["im"]?.Value ?? "0", NumberStyles.Any, CultureInfo.InvariantCulture, out var im))
+                    yield return new Complex(re, im);
             }
         }
 

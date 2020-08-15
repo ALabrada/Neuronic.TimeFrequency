@@ -12,29 +12,31 @@ namespace Neuronic.TimeFrequency.Testing
     public class TransformTests
     {
         [TestMethod]
-        [DataRow("morl", "cwt_morl", DisplayName = "Morlet")]
-        [DataRow("mexh", "cwt_mexh", DisplayName = "Mexican Hat")]
-        [DataRow("gaus1", "cwt_gaus1", DisplayName = "Gaussian order 1")]
-        [DataRow("gaus5", "cwt_gaus5", DisplayName = "Gaussian order 5")]
+        [DataRow("morl", "mycwt_morl", DisplayName = "Morlet")]
+        [DataRow("mexh", "mycwt_mexh", DisplayName = "Mexican Hat")]
+        [DataRow("gaus1", "mycwt_gaus1", DisplayName = "Gaussian order 1")]
+        [DataRow("gaus5", "mycwt_gaus5", DisplayName = "Gaussian order 5")]
 
         public void TestContinuousWaveletTransformUsingFFT(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
             valueList = resources.GetString(valueList) ?? valueList;
+            float[] t;
             float[] samples;
             var expectedValues = new List<Complex[]>();
             using (var reader = new StringReader(valueList))
             {
+                t = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
                 samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
                 string line;
                 while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (Complex)x).ToArray());
+                    expectedValues.Add(Tools.ReadComplexNumbersFrom(line).ToArray());
             }
             var scales = Enumerable.Range(1, expectedValues.Count).Select(x => (double)x).ToArray();
 
             var wavelet = Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            var cwt = ContinuousWaveletTransform.EstimateUsingFFT(new Signal<float>(samples), wavelet, scales);
+            var cwt = ContinuousWaveletTransform.EstimateUsingFFT(new Signal<float>(samples, fs: 1d/(t[1] - t[0])), wavelet, scales);
 
             Assert.AreEqual(scales.Length, cwt.Scales.Count);
             var actualValues = new List<Complex>(samples.Length);
@@ -42,7 +44,7 @@ namespace Neuronic.TimeFrequency.Testing
             {
                 actualValues.Clear();
                 actualValues.AddRange(cwt.EnumerateScale(i));
-                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
+                Tools.AssertAreEqual(expectedValues[i].Take(expectedValues[i].Length - 1).ToList(), actualValues, 1e-3);
             }            
         }
 

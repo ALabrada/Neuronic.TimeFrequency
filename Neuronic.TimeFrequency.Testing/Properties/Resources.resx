@@ -154,6 +154,18 @@
   <data name="cwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\cwt_rbio3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="mycwt_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_gaus1.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="mycwt_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_gaus5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="mycwt_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_mexh.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="mycwt_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_morl.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="wavefun_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavefun_bior2.6.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

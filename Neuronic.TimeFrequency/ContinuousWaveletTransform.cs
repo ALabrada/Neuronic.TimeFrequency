@@ -28,19 +28,19 @@ namespace Neuronic.TimeFrequency
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
 
-            var yHat = new Complex[Tools.NextPowerOf2(signal.Count)];
+            var yHat = new Complex[signal.Count];
             for (int offset = 0; offset < signal.Count; offset++)
-                yHat[offset] = signal.Count;
+                yHat[offset] = signal[offset];
             FourierTransform2.FFT(yHat, FourierTransform.Direction.Forward);
 
+            var t0 = -(signal.Count - 1 - 0.5 * signal.Count) * signal.SamplingPeriod;
             var oms = 2 * Math.PI / signal.SamplingPeriod;
-            var values = new Complex[signal.Count, scaleArray.Length];
+            var values = new Complex[signal.Count - 1, scaleArray.Length];
             var psiScale = new Complex[signal.Count];
 
             for (int scale = 0; scale < scaleArray.Length; scale++)
             {                
-                var dt = 0.5 * (signal.Count - 1) * signal.SamplingPeriod / scaleArray[scale];
-                var psi = new Signal<Complex>(psiScale, -dt, signal.SamplingRate);
+                var psi = new Signal<Complex>(psiScale, t0 / scaleArray[scale], signal.SamplingRate * scaleArray[scale]);
                 wavelet.Evaluate(psi);
                 psi.Conjugate();
                 Array.Reverse(psiScale, 0, psiScale.Length);
@@ -50,14 +50,14 @@ namespace Neuronic.TimeFrequency
                 var factor = 1d / Complex.Sqrt(Math.Abs(scaleArray[scale]));                
                 for (int offset = 0; offset < signal.Count; offset++)
                 {
-                    var trans = Complex.Exp(new Complex(0, -1) * -dt * offset * oms / signal.Count);
+                    var trans = Complex.Exp(new Complex(0, -1) * t0 * offset * oms / signal.Count);
                     psiScale[offset] = factor * trans * psiScale[offset] * yHat[offset];
                 }
 
                 FourierTransform2.FFT(psiScale, FourierTransform.Direction.Backward);
 
-                for (int offset = 0; offset < signal.Count; offset++)
-                    values[offset, scale] = psiScale[offset];
+                for (int offset = 0; offset < signal.Count - 1; offset++)
+                    values[offset, scale] = psiScale[offset + 1];
             }
 
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
@@ -79,7 +79,7 @@ namespace Neuronic.TimeFrequency
             {
                 var scaleSig = scaleArray[scale] / signal.SamplingPeriod;
 
-                var f = new Complex[(int)Math.Ceiling(scaleSig * psi.Duration)];
+                var f = new Complex[(int)Math.Ceiling(scaleSig * psi.Count * psi.SamplingPeriod)];
                 for (int i = 0; i < f.Length; i++)
                 {
                     var j = (int)Math.Floor(i / (scaleSig * psi.SamplingPeriod));
