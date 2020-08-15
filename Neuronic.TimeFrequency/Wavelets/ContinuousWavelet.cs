@@ -19,19 +19,11 @@ namespace Neuronic.TimeFrequency.Wavelets
             Maximum = max;
         }
 
-        public ContinuousWavelet(Func<double, double> func,
-            string shortName, string familyName,
-            double freq = 0d,
-            double min = double.NegativeInfinity, double max = double.PositiveInfinity)
-            : this(new Func<double, Complex>(x => func(x)), shortName, familyName, freq, min, max)
-        {
-        }
-
         public virtual double Minimum { get; }
 
         public virtual double Maximum { get; }
 
-        public Complex Evaluate(double time) => _func(time);
+        public virtual Complex Evaluate(double time) => _func(time);
 
         public override void Evaluate(Signal<Complex> signal)
         {

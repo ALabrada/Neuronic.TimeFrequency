@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Neuronic.TimeFrequency
 {
     public struct Signal<T>
-        : IReadOnlyList<T>
+        : IReadOnlySignal<T>
     {
         public Signal(T[] samples, double delay = 0d, double fs = 1d)
         {

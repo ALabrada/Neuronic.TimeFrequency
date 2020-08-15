@@ -10,8 +10,8 @@ namespace Neuronic.TimeFrequency.Wavelets
         // Mexican Hat
         readonly static double MexicanHatFactor = 2 / Math.Sqrt(3) * Math.Pow(Math.PI, -0.25);
 
-        public readonly static ContinuousWavelet MexicanHat =
-            new ContinuousWavelet(t => MexicanHatFactor * (1 - t * t) * Math.Exp(-t * t / 2), "mexh", "Mexican Hat", min: -8, max: 8);
+        public readonly static RealContinuousWavelet MexicanHat =
+            new RealContinuousWavelet(t => MexicanHatFactor * (1 - t * t) * Math.Exp(-t * t / 2), "mexh", "Mexican Hat", min: -8, max: 8);
 
         // Morlet
         readonly static double MorletAlpha = Math.PI * Math.Sqrt(2 / Math.Log(2));
@@ -22,12 +22,12 @@ namespace Neuronic.TimeFrequency.Wavelets
             t => MorletFactor * (Complex.Exp(new Complex(0, -1) * MorletAlpha * t) - MorletK) * Complex.Exp(-t * t / 2),
             "cmor", "Complex Morlet", min: -8, max: 8);
 
-        public readonly static ContinuousWavelet Morlet =
-            new ContinuousWavelet(t => Math.Cos(5 * t) * Math.Exp(-t * t / 2),
+        public readonly static RealContinuousWavelet Morlet =
+            new RealContinuousWavelet(t => Math.Cos(5 * t) * Math.Exp(-t * t / 2),
                 "morl", "Morlet", min: -8, max: 8);
 
         // Gaussian
-        public static ContinuousWavelet Gaussian(int order)
+        public static RealContinuousWavelet Gaussian(int order)
         {
             if (order <= 0)
                 throw new ArgumentOutOfRangeException(nameof(order));
@@ -39,23 +39,23 @@ namespace Neuronic.TimeFrequency.Wavelets
             switch (order)
             {
                 case 1:
-                    return new ContinuousWavelet(t => -2 * t * f0(t),
+                    return new RealContinuousWavelet(t => -2 * t * f0(t),
                         "gaus1", "Gaussian",
                         min: min, max: max);
                 case 2:
-                    return new ContinuousWavelet(t => 2 / Math.Sqrt(3) * (1 - 2 * t * t) * f0(t),
+                    return new RealContinuousWavelet(t => 2 / Math.Sqrt(3) * (1 - 2 * t * t) * f0(t),
                         "gaus2", "Gaussian",
                         min: min, max: max);
                 case 3:
-                    return new ContinuousWavelet(t => -4 / Math.Sqrt(15) * t * (3 - 2 * t * t) * f0(t),
+                    return new RealContinuousWavelet(t => -4 / Math.Sqrt(15) * t * (3 - 2 * t * t) * f0(t),
                         "gaus3", "Gaussian",
                         min: min, max: max);
                 case 4:
-                    return new ContinuousWavelet(t => 4 / Math.Sqrt(105) * (3 - 12 * t * t + 4 * t * t * t * t) * f0(t),
+                    return new RealContinuousWavelet(t => 4 / Math.Sqrt(105) * (3 - 12 * t * t + 4 * t * t * t * t) * f0(t),
                         "gaus4", "Gaussian",
                         min: min, max: max);
                 case 5:
-                    return new ContinuousWavelet(t => 8 / (3 * Math.Sqrt(105)) * t * (-15 + 20 * t * t - 4 * t * t * t * t) * f0(t),
+                    return new RealContinuousWavelet(t => 8 / (3 * Math.Sqrt(105)) * t * (-15 + 20 * t * t - 4 * t * t * t * t) * f0(t),
                         "gaus5", "Gaussian",
                         min: min, max: max);
                 default:

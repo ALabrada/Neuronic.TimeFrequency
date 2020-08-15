@@ -11,10 +11,10 @@ namespace Neuronic.TimeFrequency
 {
     public class ContinuousWaveletTransform: IEnumerable<Complex>
     {
-        private Complex[,] _values;
-        private double[] _scales;
+        private readonly Complex[,] _values;
+        private readonly double[] _scales;
 
-        private ContinuousWaveletTransform(Complex[,] values, double samplingPeriod, IWavelet wavelet, IEnumerable<double> scales)
+        private ContinuousWaveletTransform(Complex[,] values, double samplingPeriod, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
             _values = values;
             SamplingPeriod = samplingPeriod;
@@ -22,7 +22,7 @@ namespace Neuronic.TimeFrequency
             _scales = scales.ToArray();
         }
 
-        public static ContinuousWaveletTransform EstimateUsingFFT(Signal<float> signal, IWavelet wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {            
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
@@ -63,8 +63,16 @@ namespace Neuronic.TimeFrequency
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
-        public static ContinuousWaveletTransform EstimateUsingConvolutions(Signal<float> signal, IWavelet wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
+            return EstimateUsingFFT(signal.Map(x => (double) x), wavelet, scales);
+        }
+
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        {
+            if (wavelet is IWavelet<double> realWavelet)
+                return EstimateUsingConvolutions(signal, realWavelet, scales);
+
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
@@ -85,7 +93,7 @@ namespace Neuronic.TimeFrequency
                     kernel.Add(psi[0]);
                 kernel.Reverse();
 
-                signal.Samples.Convolve(kernel, buffer);
+                signal.Convolve(kernel, buffer);
                 new Signal<Complex>(buffer).Differentiate();
 
                 var factor = -Math.Sqrt(scaleArray[scale]);
@@ -96,9 +104,51 @@ namespace Neuronic.TimeFrequency
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        {
+            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
+        }
+
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
+        {
+            scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
+            var scaleArray = scales.ToArray();
+            wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
+
+            var psi = wavelet.Evaluate();
+            psi.Integrate();
+
+            var values = new Complex[signal.Count, scaleArray.Length];
+            var buffer = new double[signal.Count + 2];
+            var kernel = new List<double>(psi.Count);
+            for (int scale = 0; scale < scaleArray.Length; scale++)
+            {
+                var freq = scaleArray[scale] / signal.SamplingPeriod;
+                kernel.Clear();
+                kernel.AddRange(psi.Sample(freq));
+                while (kernel.Count <= 2)
+                    kernel.Add(psi[0]);
+                kernel.Reverse();
+
+                signal.Convolve(kernel, buffer);
+                new Signal<double>(buffer).Differentiate();
+
+                var factor = -Math.Sqrt(scaleArray[scale]);
+                for (int i = 0; i < signal.Count; i++)
+                    values[i, scale] = factor * buffer[i + 1];
+            }
+
+            return new ContinuousWaveletTransform(values, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);
+        }
+
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
+        {
+            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
+        }
+
         public double SamplingPeriod { get; }
 
-        public IWavelet Wavelet { get; }
+        public IWavelet<Complex> Wavelet { get; }
 
 #if !NET40
         public IReadOnlyList<double> Scales => _scales;

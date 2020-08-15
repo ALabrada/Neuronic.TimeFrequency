@@ -5,7 +5,7 @@ using Accord.Math.Transforms;
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
-    public abstract class WaveletBase : IWavelet
+    public abstract class WaveletBase : IWavelet<Complex>
     {
         private double _centralFrequency = -1d;
 

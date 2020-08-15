@@ -2,11 +2,11 @@
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
-    public interface IWavelet
+    public interface IWavelet<T>
     {
-        Signal<Complex> Evaluate();
-        Signal<Complex> Evaluate(double min, double max, int count);
-        void Evaluate(Signal<Complex> signal);
+        Signal<T> Evaluate();
+        Signal<T> Evaluate(double min, double max, int count);
+        void Evaluate(Signal<T> signal);
         double CentralFrequency { get; }
     }
 }

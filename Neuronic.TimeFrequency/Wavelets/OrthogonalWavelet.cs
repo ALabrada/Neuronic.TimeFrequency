@@ -6,7 +6,7 @@ using Accord.Math;
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
-    public class OrthogonalWavelet : WaveletBase
+    public class OrthogonalWavelet : WaveletBase, IWavelet<double>
     {
         protected const int PrecissionLevel = 10;
 
@@ -124,6 +124,14 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         }
 
+        Signal<double> IWavelet<double>.Evaluate(double min, double max, int count)
+        {
+            var values = new double[count];
+            var signal = new Signal<double>(values, min, (count - 1) / (max - min));
+            Evaluate(signal);
+            return signal;
+        }
+
         public override void Evaluate(Signal<Complex> signal)
         {
             var phi = ProtectedEvaluate();
@@ -147,6 +155,18 @@ namespace Neuronic.TimeFrequency.Wavelets
                 values[i + offset] = psi[i];
            
             return new Signal<Complex>(values, psi.Delay - (offset * psi.SamplingPeriod), psi.SamplingRate);
+        }
+
+        Signal<double> IWavelet<double>.Evaluate()
+        {
+            var psi = ProtectedEvaluate();
+            var outputLength = Math.Max(psi.Count + 2, DesiredOutputSize);
+
+            var values = new double[outputLength];
+            var offset = 1;
+            Array.Copy(psi.Samples, 0, values, offset, psi.Count);
+
+            return new Signal<double>(values, psi.Delay - (offset * psi.SamplingPeriod), psi.SamplingRate);
         }
 
         protected virtual Signal<double> ProtectedEvaluate()
