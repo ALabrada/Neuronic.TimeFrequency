@@ -2,14 +2,14 @@
 {
     public static class WaveletExtensions
     {
-        public static double GetFrequencyOf(this IWavelet wavelet, double scale)
+        public static double GetFrequencyOf(this IWavelet wavelet, double scale, double samplingPeriod = 1d)
         {
-            return wavelet.CentralFrequency / scale;
+            return wavelet.CentralFrequency / (scale * samplingPeriod);
         }
 
-        public static double GetScaleFor(this IWavelet wavelet, double frequency)
+        public static double GetScaleFor(this IWavelet wavelet, double frequency, double samplingPeriod = 1d)
         {
-            return wavelet.CentralFrequency / frequency;
+            return wavelet.CentralFrequency / (frequency * samplingPeriod);
         }
     }
 }

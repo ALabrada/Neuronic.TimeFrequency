@@ -5,14 +5,14 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public class BiorthogonalWavelet : OrthogonalWavelet
     {
-        public BiorthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
-             : base(lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
+        public BiorthogonalWavelet(string shortName, string familyName, double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
+             : base(shortName, familyName, lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
         {
-            Other = new BiorthogonalWavelet(this, lowDec.Reversed(), highDec.Reversed(), lowRec.Reversed(), highRec.Reversed(), vanishingMoments, freq);
+            Other = new BiorthogonalWavelet(this, shortName, familyName, lowDec.Reversed(), highDec.Reversed(), lowRec.Reversed(), highRec.Reversed(), vanishingMoments, freq);
         }
 
-        protected BiorthogonalWavelet(BiorthogonalWavelet reverse, double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
-             : base(lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
+        protected BiorthogonalWavelet(BiorthogonalWavelet reverse, string shortName, string familyName, double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
+             : base(shortName, familyName, lowRec, highRec, lowDec, highDec, vanishingMoments, freq)
         {
             Other = reverse;
         }

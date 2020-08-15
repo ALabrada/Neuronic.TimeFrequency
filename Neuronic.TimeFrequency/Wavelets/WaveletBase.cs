@@ -7,52 +7,21 @@ namespace Neuronic.TimeFrequency.Wavelets
 {
     public abstract class WaveletBase : IWavelet
     {
-        private Complex _energy;
-        private double _centralFrequency;
+        private double _centralFrequency = -1d;
 
-        public virtual Complex Energy
+        protected WaveletBase(string shortName, string familyName)
         {
-            get => _energy != Complex.Zero ? _energy : (_energy = EstimateEnergy(Evaluate()));
-            protected set => _energy = value;
+            ShortName = shortName;
+            FamilyName = familyName;
         }
 
-        protected Complex EstimateEnergy(Complex[] values, double min, double step)
-        {
-            var sum = Complex.Zero;
-            for (int i = 0; i < values.Length; i++)
-            {
-                var x = min + step * i;
-                var y = values[i];
-                sum += step * y * y / x;
-            }
-            return 2 * Math.PI * sum;
-        }
+        public string ShortName { get; }
 
-        protected Complex EstimateEnergy(Signal<Complex> signal)
-        {
-            return EstimateEnergy(signal.Samples, signal.Delay, signal.SamplingPeriod);
-        }
-
-        protected double EstimateEnergy(double[] values, double min, double step)
-        {
-            var sum = 0d;
-            for (int i = 0; i < values.Length; i++)
-            {
-                var x = min + step * i;
-                var y = values[i];
-                sum += step * y * y / x;
-            }
-            return 2 * Math.PI * sum;
-        }
-
-        protected double EstimateEnergy(Signal<double> signal)
-        {
-            return EstimateEnergy(signal.Samples, signal.Delay, signal.SamplingPeriod);
-        }
+        public string FamilyName { get; }
 
         public virtual double CentralFrequency
         {
-            get => _centralFrequency >= 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
+            get => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
             protected set => _centralFrequency = value;
         }
 

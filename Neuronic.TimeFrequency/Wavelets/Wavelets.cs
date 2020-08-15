@@ -11,7 +11,7 @@ namespace Neuronic.TimeFrequency.Wavelets
         readonly static double MexicanHatFactor = 2 / Math.Sqrt(3) * Math.Pow(Math.PI, -0.25);
 
         public readonly static ContinuousWavelet MexicanHat =
-            new ContinuousWavelet(t => MexicanHatFactor * (1 - t * t) * Math.Exp(-t * t / 2), 0d, min: -8, max: 8);
+            new ContinuousWavelet(t => MexicanHatFactor * (1 - t * t) * Math.Exp(-t * t / 2), "mexh", "Mexican Hat", min: -8, max: 8);
 
         // Morlet
         readonly static double MorletAlpha = Math.PI * Math.Sqrt(2 / Math.Log(2));
@@ -20,10 +20,11 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         public readonly static ContinuousWavelet ComplexMorlet = new ContinuousWavelet(
             t => MorletFactor * (Complex.Exp(new Complex(0, -1) * MorletAlpha * t) - MorletK) * Complex.Exp(-t * t / 2),
-            0d);
+            "cmor", "Complex Morlet", min: -8, max: 8);
 
         public readonly static ContinuousWavelet Morlet =
-            new ContinuousWavelet(t => Math.Cos(5 * t) * Math.Exp(-t * t / 2), min: -8, max: 8);
+            new ContinuousWavelet(t => Math.Cos(5 * t) * Math.Exp(-t * t / 2),
+                "morl", "Morlet", min: -8, max: 8);
 
         // Gaussian
         public static ContinuousWavelet Gaussian(int order)
@@ -38,19 +39,24 @@ namespace Neuronic.TimeFrequency.Wavelets
             switch (order)
             {
                 case 1:
-                    return new ContinuousWavelet(t => -2 * t * f0(t), 
+                    return new ContinuousWavelet(t => -2 * t * f0(t),
+                        "gaus1", "Gaussian",
                         min: min, max: max);
                 case 2:
                     return new ContinuousWavelet(t => 2 / Math.Sqrt(3) * (1 - 2 * t * t) * f0(t),
+                        "gaus2", "Gaussian",
                         min: min, max: max);
                 case 3:
                     return new ContinuousWavelet(t => -4 / Math.Sqrt(15) * t * (3 - 2 * t * t) * f0(t),
+                        "gaus3", "Gaussian",
                         min: min, max: max);
                 case 4:
                     return new ContinuousWavelet(t => 4 / Math.Sqrt(105) * (3 - 12 * t * t + 4 * t * t * t * t) * f0(t),
+                        "gaus4", "Gaussian",
                         min: min, max: max);
                 case 5:
                     return new ContinuousWavelet(t => 8 / (3 * Math.Sqrt(105)) * t * (-15 + 20 * t * t - 4 * t * t * t * t) * f0(t),
+                        "gaus5", "Gaussian",
                         min: min, max: max);
                 default:
                     throw new NotImplementedException();
@@ -71,7 +77,8 @@ namespace Neuronic.TimeFrequency.Wavelets
                 }
 
                 return new Complex(re, im);
-            }, min: -20, max: 20);
+            },
+                "shan", "Shannon", min: -20, max: 20);
         }
 
         #region Daubechies
@@ -579,7 +586,8 @@ namespace Neuronic.TimeFrequency.Wavelets
                 highDec[i] = ((filterLength - 1 - i) % 2 != 0 ? -1 : 1) * coeff[i];
             }
 
-            return new OrthogonalWavelet(lowRec, highRec, lowDec, highDec, order);
+            return new OrthogonalWavelet($"db{order}", "Daubechies", 
+                lowRec, highRec, lowDec, highDec, order);
         }
 
         #endregion
@@ -915,7 +923,8 @@ namespace Neuronic.TimeFrequency.Wavelets
                              * coeff[0][i + n];
             }
 
-            return new BiorthogonalWavelet(lowRec2, highRec1, lowDec1, highDec2, highDigit).Other;
+            return new BiorthogonalWavelet($"bior{highDigit}.{lowDigit}", "Biorthogonal", 
+                lowRec2, highRec1, lowDec1, highDec2, highDigit).Other;
         }
 
         public static BiorthogonalWavelet ReverseBiorthogonal(int order)
@@ -933,7 +942,8 @@ namespace Neuronic.TimeFrequency.Wavelets
             var highRec = other.HighDecompositionFilter.Reversed();
             var highDec = other.HighReconstructionFilter.Reversed();
 
-            return new BiorthogonalWavelet(lowRec, highRec, lowDec, highDec, highDigit);
+            return new BiorthogonalWavelet($"rbio{highDigit}.{lowDigit}", "Reverse Biorthogonal", 
+                lowRec, highRec, lowDec, highDec, highDigit);
         }
 
         #endregion

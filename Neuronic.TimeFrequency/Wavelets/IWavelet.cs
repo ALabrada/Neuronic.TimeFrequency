@@ -7,7 +7,6 @@ namespace Neuronic.TimeFrequency.Wavelets
         Signal<Complex> Evaluate();
         Signal<Complex> Evaluate(double min, double max, int count);
         void Evaluate(Signal<Complex> signal);
-        Complex Energy { get; }
         double CentralFrequency { get; }
     }
 }

@@ -14,10 +14,12 @@ namespace Neuronic.TimeFrequency.Wavelets
         private readonly double[] _highReconstructionFilter;
         private readonly double[] _lowDecompositionFilter;
         private readonly double[] _highDecompositionFilter;
-        private double _centralFrequency;
         private readonly Dictionary<int, double[]> _psiCache = new Dictionary<int, double[]>();
 
-        public OrthogonalWavelet(double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, int vanishingMoments, double freq = 0)
+        public OrthogonalWavelet(string shortName, string familyName, 
+            double[] lowRec, double[] highRec, double[] lowDec, double[] highDec, 
+            int vanishingMoments, double freq = 0)
+        : base (shortName, familyName)
         {
             VanishingMoments = vanishingMoments;
             _lowReconstructionFilter = lowRec ?? throw new ArgumentNullException(nameof(lowRec));
@@ -29,30 +31,17 @@ namespace Neuronic.TimeFrequency.Wavelets
             if (lowRec.Length != FilterLength || highDec.Length != FilterLength || highRec.Length != FilterLength)
                 throw new ArgumentException("Filter length mismatch");
 
-            _centralFrequency = freq;
+            base.CentralFrequency = freq;
         }
 
-        public OrthogonalWavelet(int filterLength, int vanishingMoments)
-            : this (new double[filterLength], new double[filterLength], new double[filterLength], new double[filterLength], vanishingMoments)
+        public OrthogonalWavelet(string shortName, string familyName, int filterLength, int vanishingMoments)
+            : this (shortName, familyName, new double[filterLength], new double[filterLength], new double[filterLength], new double[filterLength], vanishingMoments)
         {
         }
 
         public int FilterLength { get; }
 
         public int VanishingMoments { get; }
-
-        public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(10));
-
-        protected double EstimateCentralFrequency(int level)
-        {
-            var p = 1 << level;
-            var phi = Upcoef(level);
-            var values = new Complex[Tools.NextPowerOf2(phi.Length + 2)];
-            var offset = (values.Length - phi.Length) / 2;
-            for (int i = 0; i < phi.Length; i++)
-                values[i + offset] = phi[i];
-            return EstimateCentralFrequency(values, 1d / p);
-        }
 
         public double[] LowReconstructionFilter => _lowReconstructionFilter;
 

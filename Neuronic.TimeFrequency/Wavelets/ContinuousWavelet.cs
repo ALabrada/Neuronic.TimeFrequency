@@ -6,26 +6,27 @@ namespace Neuronic.TimeFrequency.Wavelets
     public class ContinuousWavelet : WaveletBase
     {
         private readonly Func<double, Complex> _func;
-        private double _centralFrequency;
 
         public ContinuousWavelet(Func<double, Complex> func,
-            double freq = 0d, Complex? energy = null,
+            string shortName, string familyName,
+            double freq = 0d,
             double min = double.NegativeInfinity, double max = double.PositiveInfinity)
+        : base (shortName, familyName)
         {
             _func = func ?? throw new ArgumentNullException(nameof(func));
-            _centralFrequency = freq;
+            base.CentralFrequency = freq;
             Minimum = min;
             Maximum = max;
         }
 
         public ContinuousWavelet(Func<double, double> func,
-            double freq = 0d, double energy = 0d,
+            string shortName, string familyName,
+            double freq = 0d,
             double min = double.NegativeInfinity, double max = double.PositiveInfinity)
-            : this(new Func<double, Complex>(x => func(x)), freq, energy, min, max)
+            : this(new Func<double, Complex>(x => func(x)), shortName, familyName, freq, min, max)
         {
         }
 
-        public override double CentralFrequency => _centralFrequency > 0 ? _centralFrequency : (_centralFrequency = EstimateCentralFrequency(Evaluate()));
         public virtual double Minimum { get; }
 
         public virtual double Maximum { get; }

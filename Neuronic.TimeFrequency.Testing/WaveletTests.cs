@@ -15,6 +15,29 @@ namespace Neuronic.TimeFrequency.Testing
     public class WaveletTests
     {
         [TestMethod]
+        [DataRow("morl", "Morlet", DisplayName = "Morlet")]
+        [DataRow("mexh", "Mexican Hat", DisplayName = "Mexican Hat")]
+        [DataRow("gaus1", "Gaussian", DisplayName = "Gaussian order 1")]
+        [DataRow("gaus2", "Gaussian", DisplayName = "Gaussian order 2")]
+        [DataRow("gaus3", "Gaussian", DisplayName = "Gaussian order 3")]
+        [DataRow("gaus4", "Gaussian", DisplayName = "Gaussian order 4")]
+        [DataRow("gaus5", "Gaussian", DisplayName = "Gaussian order 5")]
+        [DataRow("db5", "Daubechies", DisplayName = "Daubechies order 5")]
+        [DataRow("db10", "Daubechies", DisplayName = "Daubechies order 10")]
+        [DataRow("db20", "Daubechies", DisplayName = "Daubechies order 20")]
+        [DataRow("bior3.3", "Biorthogonal", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("bior2.6", "Biorthogonal", DisplayName = "Biorthogonal 3.6")]
+        [DataRow("rbio3.3", "Reverse Biorthogonal", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("rbio1.5", "Reverse Biorthogonal", DisplayName = "Reverse biorthogonal 1.5")]
+        public void TestWaveletNames(string shortName, string familyName)
+        {
+            var wavelet = Wavelets.Wavelets.FromName(shortName);
+            Assert.IsNotNull(wavelet);
+            Assert.AreEqual(shortName, wavelet.ShortName);
+            Assert.AreEqual(familyName, wavelet.FamilyName);
+        }
+
+        [TestMethod]
         [DataRow("morl", "wavefun_morl", DisplayName = "Morlet")]
         [DataRow("mexh", "wavefun_mexh", DisplayName = "Mexican Hat")]
         [DataRow("gaus1", "wavefun_gaus1", DisplayName = "Gaussian order 1")]
@@ -115,7 +138,7 @@ namespace Neuronic.TimeFrequency.Testing
             var wavelet = Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
             var actualValue = wavelet.CentralFrequency;
-            Assert.AreEqual(expectedValue, actualValue, 0.1);
+            Assert.AreEqual(expectedValue, actualValue, 1e-2 * expectedValue);
         }
 
         [TestMethod]
@@ -130,7 +153,22 @@ namespace Neuronic.TimeFrequency.Testing
             var wavelet = Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
             var actualValue = wavelet.CentralFrequency;
-            Assert.AreEqual(expectedValue, actualValue, 0.1);
+            Assert.AreEqual(expectedValue, actualValue, 0.01 * expectedValue);
+        }
+
+        [TestMethod]
+        [DataRow("gaus1", 1e-3, 200d)]
+        [DataRow("gaus1", 1e-2, 20)]
+        [DataRow("gaus1", 1e-1, 2)]
+        [DataRow("gaus1", 1.0, 0.2)]
+        [DataRow("gaus1", 1e1, 0.02)]
+        [DataRow("gaus1", 1e2, 2e-3)]
+        [DataRow("gaus1", 1e3, 2e-4)]
+        public void TestScaleToFrequencyConversion(string wavName, double scale, double expectedValue)
+        {
+            var wavelet = Wavelets.Wavelets.FromName(wavName);
+            var actualValue = wavelet.GetFrequencyOf(scale);
+            Assert.AreEqual(expectedValue, actualValue, 1e-2*expectedValue);
         }
     }
 }
