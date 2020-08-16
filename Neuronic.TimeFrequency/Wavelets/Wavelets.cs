@@ -1,32 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Accord.Math;
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
+    /// <summary>
+    /// Contains some common wavelet functions.
+    /// </summary>
     public static class Wavelets
     {
         // Mexican Hat
-        readonly static double MexicanHatFactor = 2 / Math.Sqrt(3) * Math.Pow(Math.PI, -0.25);
+        static readonly double MexicanHatFactor = 2 / Math.Sqrt(3) * Math.Pow(Math.PI, -0.25);
 
-        public readonly static RealContinuousWavelet MexicanHat =
+        /// <summary>
+        /// The Mexican Hat wavelet.
+        /// </summary>
+        public static readonly RealContinuousWavelet MexicanHat =
             new RealContinuousWavelet(t => MexicanHatFactor * (1 - t * t) * Math.Exp(-t * t / 2), "mexh", "Mexican Hat", min: -8, max: 8);
 
+        #region Morlet
         // Morlet
-        readonly static double MorletAlpha = Math.PI * Math.Sqrt(2 / Math.Log(2));
-        readonly static double MorletFactor = Math.Pow(Math.PI, -0.25);
-        readonly static double MorletK = Math.Exp(-MorletAlpha * MorletAlpha / 2);
+        static readonly double MorletAlpha = Math.PI * Math.Sqrt(2 / Math.Log(2));
+        static readonly double MorletFactor = Math.Pow(Math.PI, -0.25);
+        static readonly double MorletK = Math.Exp(-MorletAlpha * MorletAlpha / 2);
 
-        public readonly static ContinuousWavelet ComplexMorlet = new ContinuousWavelet(
+        /// <summary>
+        /// The Morlet wavelet with complex values.
+        /// </summary>
+        public static readonly ContinuousWavelet ComplexMorlet = new ContinuousWavelet(
             t => MorletFactor * (Complex.Exp(new Complex(0, -1) * MorletAlpha * t) - MorletK) * Complex.Exp(-t * t / 2),
             "cmor", "Complex Morlet", min: -8, max: 8);
 
-        public readonly static RealContinuousWavelet Morlet =
+        /// <summary>
+        /// The Morlet wavelet with real values.
+        /// </summary>
+        public static readonly RealContinuousWavelet Morlet =
             new RealContinuousWavelet(t => Math.Cos(5 * t) * Math.Exp(-t * t / 2),
-                "morl", "Morlet", min: -8, max: 8);
+                "morl", "Morlet", min: -8, max: 8); 
+        #endregion
 
-        // Gaussian
+        /// <summary>
+        /// Gets the Gaussian wavelet of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The wavelet function.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="order"/> is not a positive value.</exception>
         public static RealContinuousWavelet Gaussian(int order)
         {
             if (order <= 0)
@@ -63,7 +83,12 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         }
 
-        // Shannon
+        /// <summary>
+        /// Gets the Shannon wavelet the specified central frequency and bandwidth.
+        /// </summary>
+        /// <param name="centralFreq">The central frequency.</param>
+        /// <param name="bandwidth">The bandwidth.</param>
+        /// <returns>The </returns>
         public static ContinuousWavelet Shannon(double centralFreq, double bandwidth)
         {
             return new ContinuousWavelet(t =>
@@ -567,6 +592,12 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         };
 
+        /// <summary>
+        /// Gets the Daubechies wavelet of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The wavelet.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Throw when <paramref name="order"/> is not a positive value.</exception>
         public static OrthogonalWavelet Daubechies(int order)
         {
             if (order <= 0 || order > DaubechiesCoefficients.Length)
@@ -592,11 +623,14 @@ namespace Neuronic.TimeFrequency.Wavelets
 
         #endregion
 
-        public readonly static OrthogonalWavelet Haar = Daubechies(1);
+        /// <summary>
+        /// The Haar wavelet.
+        /// </summary>
+        public static readonly OrthogonalWavelet Haar = Daubechies(1);
 
         #region Biorthogonal
 
-        readonly static double[][][] BiorthogonalCoefficients =
+        static readonly double[][][] BiorthogonalCoefficients =
         {
             new[]
             {
@@ -863,12 +897,23 @@ namespace Neuronic.TimeFrequency.Wavelets
             }
         };
 
+        /// <summary>
+        /// Gets the Biorthogonal wavelet of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The wavelet.</returns>
         public static BiorthogonalWavelet Biorthogonal(int order)
         {
             int highDigit = order / 10, lowDigit = order % 10;
             return Biorthogonal(highDigit, lowDigit);
         }
 
+        /// <summary>
+        /// Gets the Biorthogonal wavelet with the specified vanishing moments.
+        /// </summary>
+        /// <param name="highDigit">The vanishing moments of the PSI function.</param>
+        /// <param name="lowDigit">The vanishing moments of the PHI function.</param>
+        /// <returns>The wavelet.</returns>
         public static BiorthogonalWavelet Biorthogonal(int highDigit, int lowDigit)
         {
             int idxLow;
@@ -927,12 +972,23 @@ namespace Neuronic.TimeFrequency.Wavelets
                 lowRec2, highRec1, lowDec1, highDec2, highDigit).Other;
         }
 
+        /// <summary>
+        /// Gets the Reverse Biorthogonal wavelet of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The wavelet.</returns>
         public static BiorthogonalWavelet ReverseBiorthogonal(int order)
         {
             int highDigit = order / 10, lowDigit = order % 10;
             return ReverseBiorthogonal(highDigit, lowDigit);
         }
 
+        /// <summary>
+        /// Gets the Reverse Biorthogonal wavelet with the specified vanishing moments.
+        /// </summary>
+        /// <param name="highDigit">The vanishing moments of the PSI function.</param>
+        /// <param name="lowDigit">The vanishing moments of the PHI function.</param>
+        /// <returns>The wavelet.</returns>
         public static BiorthogonalWavelet ReverseBiorthogonal(int highDigit, int lowDigit)
         {
             var other = Biorthogonal(highDigit, lowDigit);
@@ -946,14 +1002,27 @@ namespace Neuronic.TimeFrequency.Wavelets
                 lowRec, highRec, lowDec, highDec, highDigit);
         }
 
+        private static T[] Reversed<T>(this IList<T> list)
+        {
+            var result = new T[list.Count];
+            for (int i = list.Count - 1; i >= 0; i--)
+                result[i] = list[list.Count - 1 - i];
+            return result;
+        }
+
         #endregion
 
+        /// <summary>
+        /// Finds the pre-defined wavelet with the specified short name.
+        /// </summary>
+        /// <param name="name">The short name.</param>
+        /// <returns>The wavelet or <c>null</c> if it is not included.</returns>
         public static WaveletBase FromName(string name)
         {
             var pattern = @"(?<name>haar|mexh|morl|cmor)|(?<name>gaus|db)(?<order>\d+)|(?<name>bior|rbio)(?<high>\d+).(?<low>\d+)";
             var match = Regex.Match(name, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             if (!match.Success)
-                throw new ArgumentException("Could not find the specified wavelet.", nameof(name));
+                return null;
             switch (match.Groups["name"].Value.ToLowerInvariant())
             {
                 case "haar":

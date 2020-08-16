@@ -85,7 +85,7 @@ namespace Neuronic.TimeFrequency.Testing
             //var actualValues = new Complex[expectedValues.Count];
             //var signal = wavelet.Evaluate();
             //Array.Copy(signal.Samples, actualValues, signal.Count);
-            var actualValues = wavelet.Evaluate();
+            var actualValues = wavelet.EvaluateDomain();
 
             Tools.AssertAreEqual(expectedValues, actualValues, 1e-5);
         }

@@ -13,7 +13,7 @@ namespace Neuronic.TimeFrequency
     {
         public static Signal<Complex> ToComplex(this Signal<double> signal)
         {
-            return new Signal<Complex>(signal.Samples.ToComplex(), signal.Delay, signal.SamplingRate);
+            return new Signal<Complex>(signal.Samples.ToComplex(), signal.Start, signal.SamplingRate);
         }
 
         public static void Integrate(this Signal<Complex> x)
@@ -117,13 +117,13 @@ namespace Neuronic.TimeFrequency
 
             public TResult this[int index] => _map(_other[index]);
 
-            public double Delay => _other.Delay;
+            public double Start => _other.Start;
 
             public double SamplingRate => _other.SamplingRate;
 
             public double SamplingPeriod => _other.SamplingPeriod;
 
-            public double Duration => _other.Duration;
+            public double End => _other.End;
         }
     }
 }

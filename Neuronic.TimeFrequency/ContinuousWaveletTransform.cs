@@ -9,6 +9,9 @@ using Neuronic.TimeFrequency.Wavelets;
 
 namespace Neuronic.TimeFrequency
 {
+    /// <summary>
+    /// Represents the Continuous Wavelet Transform (CWT).  
+    /// </summary>
     public class ContinuousWaveletTransform: IEnumerable<Complex>
     {
         private readonly Complex[,] _values;
@@ -22,6 +25,17 @@ namespace Neuronic.TimeFrequency
             _scales = scales.ToArray();
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the FFT method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the one proposed by Dr. Hans-Georg Stark on the book
+        /// "Wavelets and Signal Processing: An Application-Based Introduction", Springer (2005).
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {            
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
@@ -63,11 +77,32 @@ namespace Neuronic.TimeFrequency
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the FFT method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the one proposed by Dr. Hans-Georg Stark on the book
+        /// "Wavelets and Signal Processing: An Application-Based Introduction", Springer (2005).
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
             return EstimateUsingFFT(signal.Map(x => (double) x), wavelet, scales);
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the convolution method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
             if (wavelet is IWavelet<double> realWavelet)
@@ -77,7 +112,7 @@ namespace Neuronic.TimeFrequency
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
 
-            var psi = wavelet.Evaluate();
+            var psi = wavelet.EvaluateDomain();
             psi.Integrate();
             psi.Conjugate();
 
@@ -104,18 +139,38 @@ namespace Neuronic.TimeFrequency
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the convolution method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
             return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the convolution method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The real-valued wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
         {
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
 
-            var psi = wavelet.Evaluate();
+            var psi = wavelet.EvaluateDomain();
             psi.Integrate();
 
             var values = new Complex[signal.Count, scaleArray.Length];
@@ -141,23 +196,50 @@ namespace Neuronic.TimeFrequency
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);
         }
 
+        /// <summary>
+        /// Estimates the CWT for the specified signal using the convolution method.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="wavelet">The real-valued wavelet.</param>
+        /// <param name="scales">The scales.</param>
+        /// <returns>The computed CWT.</returns>
+        /// <remarks>
+        /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
         {
             return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
         }
 
+        /// <summary>
+        /// Gets the sampling period of the source signal.
+        /// </summary>
         public double SamplingPeriod { get; }
 
+        /// <summary>
+        /// Gets the wavelet function.
+        /// </summary>
         public IWavelet<Complex> Wavelet { get; }
 
-#if !NET40
-        public IReadOnlyList<double> Scales => _scales;
-#else
-        public IList<double> Scales => _scales;
-#endif
+        /// <summary>
+        /// Gets the estimated scales.
+        /// </summary>
+        public IList<double> Scales => Array.AsReadOnly(_scales);
 
+        /// <summary>
+        /// Gets the time-frequency content at the specified offset and scale.
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="scaleIndex">The index of the scale in <see cref="Scales"/>.</param>
+        /// <returns>The time-frequency content.</returns>
         public Complex this[int offset, int scaleIndex] => _values[offset, scaleIndex];
 
+        /// <summary>
+        /// Gets the time-frequency content at the specified offset and scale.
+        /// </summary>
+        /// <param name="delay">The time.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns>The time-frequency content.</returns>
         public Complex this[double delay, double scale]
         {
             get
@@ -170,6 +252,11 @@ namespace Neuronic.TimeFrequency
             }
         }
 
+        /// <summary>
+        /// Enumerates the computed time domain content for the specified scale.
+        /// </summary>
+        /// <param name="scale">The scale.</param>
+        /// <returns>The time domain content.</returns>
         public IEnumerable<Complex> EnumerateScale(double scale)
         {
             var scaleIndex = Array.BinarySearch(_scales, scale);
@@ -178,12 +265,23 @@ namespace Neuronic.TimeFrequency
             return EnumerateScale(scaleIndex);
         }
 
+        /// <summary>
+        /// Enumerates the computed time domain content for the specified scale.
+        /// </summary>
+        /// <param name="scaleIndex">Index of the scale in <see cref="Scales"/>.</param>
+        /// <returns>The time domain content.</returns>
         public IEnumerable<Complex> EnumerateScale(int scaleIndex)
         {
             for (int i = 0; i < _values.GetLength(0); i++)
                 yield return _values[i, scaleIndex];
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the computed time-frequency values.
+        /// </summary>
+        /// <returns>
+        /// An enumerator that can be used to iterate through the collection.
+        /// </returns>
         public IEnumerator<Complex> GetEnumerator()
         {
             for (int i = 0; i < _values.GetLength(0); i++)            

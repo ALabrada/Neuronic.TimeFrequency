@@ -4,6 +4,10 @@
     <TargetFramework>net46</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\net46\Neuronic.TimeFrequency.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Accord.Math" Version="3.8.0" />
   </ItemGroup>
