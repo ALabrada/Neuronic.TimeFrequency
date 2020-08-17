@@ -70,6 +70,7 @@
     </Compile>
     <Compile Include="Tools.cs" />
     <Compile Include="TransformTests.cs" />
+    <Compile Include="KernelTests.cs" />
     <Compile Include="WaveletTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -91,6 +92,8 @@
     <None Include="Resources\cwt_morl.csv" />
     <None Include="Resources\cwt_rbio1.5.csv" />
     <None Include="Resources\cwt_rbio3.3.csv" />
+    <None Include="Resources\dtfd_cw_100.csv" />
+    <None Include="Resources\dtfd_cw_30.csv" />
     <None Include="Resources\dwt_bior2.6.csv" />
     <None Include="Resources\dwt_bior3.3.csv" />
     <None Include="Resources\dwt_db10.csv" />
@@ -99,6 +102,8 @@
     <None Include="Resources\dwt_haar.csv" />
     <None Include="Resources\dwt_rbio1.5.csv" />
     <None Include="Resources\dwt_rbio3.3.csv" />
+    <None Include="Resources\gen_kernel_cw_100.csv" />
+    <None Include="Resources\gen_kernel_cw_30.csv" />
     <None Include="Resources\mycwt_gaus1.csv" />
     <None Include="Resources\mycwt_gaus5.csv" />
     <None Include="Resources\mycwt_mexh.csv" />

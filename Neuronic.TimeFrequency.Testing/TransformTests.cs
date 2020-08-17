@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neuronic.TimeFrequency.Kernels;
 using Neuronic.TimeFrequency.Testing.Properties;
 using Neuronic.TimeFrequency.Wavelets;
 
@@ -115,6 +116,37 @@ namespace Neuronic.TimeFrequency.Testing
 
             Tools.AssertAreEqual(a, dwt.Approximation, 1e-3);
             Tools.AssertAreEqual(d, dwt.Detail, 1e-3);
+        }
+
+        [TestMethod]
+        [DataRow(30d, "dtfd_cw_30", DisplayName = "Choi-Williams sigma=30")]
+        [DataRow(100d, "dtfd_cw_100", DisplayName = "Choi-Williams sigma=100")]
+        public void TestChoiWilliamsTimeFrequencyDistribution(double sigma, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            float[] samples;
+            var expectedValues = new List<double[]>();
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).ToArray());
+            }
+
+            var kernel = new ChoiWilliamsDistribution {Sigma = sigma};
+            var tfd = TimeFrequencyDistribution.Estimate(new Signal<float>(samples, fs: 10d), kernel);
+
+            Assert.AreEqual(expectedValues.Count, tfd.Samples);
+            Assert.AreEqual(tfd.Frequencies.Count, samples.Length);
+            var actualValues = new List<double>(samples.Length);
+            for (int i = 0; i < expectedValues.Count; i++)
+            {
+                actualValues.Clear();
+                actualValues.AddRange(tfd.EnumerateOffset(i));
+                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-5);
+            }
         }
     }
 }
