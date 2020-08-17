@@ -132,8 +132,9 @@ namespace Neuronic.TimeFrequency
                 new Signal<Complex>(buffer).Differentiate();
 
                 var factor = -Math.Sqrt(scaleArray[scale]);
-                for (int i = 0; i < signal.Count; i++)                
-                    values[i, scale] = factor * buffer[i + 1];                
+                var offset = 1 - (kernel.Count & 1);
+                for (int i = 0; i < signal.Count; i++)
+                    values[i, scale] = factor * buffer[i + offset];
             }
 
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
@@ -189,8 +190,9 @@ namespace Neuronic.TimeFrequency
                 new Signal<double>(buffer).Differentiate();
 
                 var factor = -Math.Sqrt(scaleArray[scale]);
+                var offset = 1 - (kernel.Count & 1);
                 for (int i = 0; i < signal.Count; i++)
-                    values[i, scale] = factor * buffer[i + 1];
+                    values[i, scale] = factor * buffer[i + offset];
             }
 
             return new ContinuousWaveletTransform(values, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);

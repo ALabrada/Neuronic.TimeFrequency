@@ -154,6 +154,30 @@
   <data name="cwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\cwt_rbio3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="dwt_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_bior2.6.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_bior3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db10.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db20.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_haar.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_rbio1.5.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="dwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_rbio3.3.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="mycwt_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\mycwt_gaus1.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

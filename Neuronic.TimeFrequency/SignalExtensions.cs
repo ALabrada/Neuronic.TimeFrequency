@@ -63,36 +63,39 @@ namespace Neuronic.TimeFrequency
             }
         }
 
-        public static void Convolve(this IReadOnlyList<double> samples, IReadOnlyList<Complex> kernel, IList<Complex> result)
+        public static void Convolve(this IReadOnlyList<double> samples, IReadOnlyList<Complex> kernel, IList<Complex> result, int stride = 1)
         {
+            var dif = -(stride * result.Count) / 2 - (kernel.Count) / 2 + (samples.Count) / 2 + Math.Max(0, (samples.Count & 1) - (kernel.Count & 1));
             for (int i = 0; i < result.Count; i++)
             {
                 var sum = Complex.Zero;
-                var start = i - (result.Count + 1) / 2 - (kernel.Count + 1) / 2 + (samples.Count + 1) / 2;
+                var start = stride * i + dif;
                 for (var j = Math.Max(0, -start); j < kernel.Count && j + start < samples.Count; j++)                
                     sum += samples[j + start] * kernel[kernel.Count - 1 - j];
                 result[i] = sum;
             }
         }
 
-        public static void Convolve(this IReadOnlyList<double> samples, IReadOnlyList<double> kernel, IList<double> result)
+        public static void Convolve(this IReadOnlyList<double> samples, IReadOnlyList<double> kernel, IList<double> result, int stride = 1)
         {
+            var dif = -(stride * result.Count) / 2 - (kernel.Count) / 2 + (samples.Count) / 2 + Math.Max(0, (samples.Count & 1) - (kernel.Count & 1));
             for (int i = 0; i < result.Count; i++)
             {
                 var sum = 0d;
-                var start = i - (result.Count + 1) / 2 - (kernel.Count + 1) / 2 + (samples.Count + 1) / 2;
+                var start = stride * i + dif;
                 for (var j = Math.Max(0, -start); j < kernel.Count && j + start < samples.Count; j++)
                     sum += samples[j + start] * kernel[kernel.Count - 1 - j];
                 result[i] = sum;
             }
         }
 
+        #region Casting
         public static IReadOnlySignal<TResult> Map<TSource, TResult>(this IReadOnlySignal<TSource> signal, Func<TSource, TResult> map)
         {
             return new CastingSignal<TSource, TResult>(signal, map);
         }
 
-        struct CastingSignal<TSource, TResult>: IReadOnlySignal<TResult>
+        struct CastingSignal<TSource, TResult> : IReadOnlySignal<TResult>
         {
             private IReadOnlySignal<TSource> _other;
             private Func<TSource, TResult> _map;
@@ -110,7 +113,7 @@ namespace Neuronic.TimeFrequency
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return ((IEnumerable) _other).GetEnumerator();
+                return ((IEnumerable)_other).GetEnumerator();
             }
 
             public int Count => _other.Count;
@@ -125,5 +128,6 @@ namespace Neuronic.TimeFrequency
 
             public double End => _other.End;
         }
+        #endregion
     }
 }

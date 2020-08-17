@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Testing.Properties;
+using Neuronic.TimeFrequency.Wavelets;
 
 namespace Neuronic.TimeFrequency.Testing
 {
@@ -85,6 +86,35 @@ namespace Neuronic.TimeFrequency.Testing
                 actualValues.AddRange(cwt.EnumerateScale(i));
                 Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
             }
+        }
+
+        [TestMethod]
+        [DataRow("db5", "dwt_db5", DisplayName = "Daubechies order 5")]
+        [DataRow("db20", "dwt_db20", DisplayName = "Daubechies order 20")]
+        [DataRow("bior3.3", "dwt_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("bior2.6", "dwt_bior2_6", DisplayName = "Biorthogonal 2.6")]
+        [DataRow("rbio3.3", "dwt_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("rbio1.5", "dwt_rbio1_5", DisplayName = "Reverse biorthogonal 1.5")]
+
+        public void TestDiscreteWaveletTransformWithSymetricPadding(string wavName, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            double[] samples;
+            double[] a, d;
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToArray();
+                a = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToArray();
+                d = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToArray();
+            }
+
+            var wavelet = Wavelets.Wavelets.FromName(wavName) as OrthogonalWavelet;
+            Assert.IsNotNull(wavelet);
+            var dwt = DiscreteWaveletTransform.Estimate(new Signal<double>(samples), wavelet, null);
+
+            Tools.AssertAreEqual(a, dwt.Approximation, 1e-3);
+            Tools.AssertAreEqual(d, dwt.Detail, 1e-3);
         }
     }
 }
