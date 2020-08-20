@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Neuronic.TimeFrequency.Kernels
 {
-    public abstract class NonSeparableKernel
+    public abstract class DopplerLagKernel
     {
         public virtual double[,] Evaluate(int count)
         {

@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neuronic.TimeFrequency.Kernels
 {
-    public class ChoiWilliamsDistribution: NonSeparableKernel
+    public class ChoiWilliamsDistribution: DopplerLagKernel
     {
         public double Sigma { get; set; }
 

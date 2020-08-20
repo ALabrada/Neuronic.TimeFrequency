@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency.Testing
 {
@@ -60,6 +61,30 @@ namespace Neuronic.TimeFrequency.Testing
             var dif = expectedValues.Zip(actualValues, (x, y) => Math.Abs(x - y)).Sum();
             var relDif = dif / expectedValues.Count;
             Assert.AreEqual(0, relDif, delta);
+        }
+
+        public static WindowFunction CreateWindow(string name)
+        {
+            switch (name.ToLowerInvariant())
+            {
+                case "delta":
+                    return Windows.Delta;
+                case "rect":
+                    return Windows.Rectangular;
+                case "bart":
+                case "bartlett":
+                    return Windows.Bartlett;
+                case "hamm":
+                case "hamming":
+                    return Windows.Hamming;
+                case "hann":
+                case "hanning":
+                    return Windows.Hanning;
+                case "gauss":
+                    return Windows.Gaussian();
+                default:
+                    return null;
+            }
         }
     }
 }

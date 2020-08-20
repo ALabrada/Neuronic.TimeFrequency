@@ -142,7 +142,7 @@ namespace Neuronic.TimeFrequency
             return tfd;
         }
 
-        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<double> signal, NonSeparableKernel kernel)
+        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<double> signal, DopplerLagKernel kernel)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             if (kernel == null) throw new ArgumentNullException(nameof(kernel));
@@ -165,7 +165,7 @@ namespace Neuronic.TimeFrequency
             return new TimeFrequencyDistribution(tfd, frequencies, signal.SamplingPeriod / 2);
         }
 
-        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<float> signal, NonSeparableKernel kernel)
+        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<float> signal, DopplerLagKernel kernel)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             return Estimate(signal.Map(x => (double) x), kernel);
