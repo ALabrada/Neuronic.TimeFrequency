@@ -1,14 +1,26 @@
-﻿namespace Neuronic.TimeFrequency.Kernels
+﻿using System;
+
+namespace Neuronic.TimeFrequency.Kernels
 {
+    /// <summary>
+    /// Product kernel
+    /// </summary>
+    /// <seealso cref="Neuronic.TimeFrequency.Kernels.DopplerKernel" />
     public class ProductKernel : DopplerKernel
     {
+        /// <summary>
+        /// Evaluates the kernel in the specified buffer.
+        /// </summary>
+        /// <param name="g">The buffer.</param>
+        /// <param name="dopplerSample">The doppler sample.</param>
+        /// <param name="lagSample">The lag sample.</param>
         protected override void Evaluate(double[,] g, double dopplerSample, double lagSample)
         {
             var lDop = g.GetLength(0) * g.GetLength(1);
             var g1 = new double[lDop];
-            var count = Evaluate(lDop, g.GetLength(1));
+            var count = Evaluate(lDop, g.GetLength(1), g1, 0);
             if (UseDopplerDomain)
-                g1 = PadWindow(g1, g.GetLength(1));
+                PadWindow(new ArraySegment<double>(g1, 0, count), new ArraySegment<double>(g1, 0, g.GetLength(1)));
 
             for (int i = 0; i < g.GetLength(1); i++)
                 g[0, i] = 1d;

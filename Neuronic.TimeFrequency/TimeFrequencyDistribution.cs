@@ -9,6 +9,9 @@ using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency
 {
+    /// <summary>
+    /// Time-Frequency distribution (TFD).
+    /// </summary>
     public class TimeFrequencyDistribution
     {
         private readonly double[,] _values;
@@ -142,6 +145,18 @@ namespace Neuronic.TimeFrequency
             return tfd;
         }
 
+        /// <summary>
+        /// Estimates the TFD of the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="kernel">The kernel.</param>
+        /// <returns>The estimated TFD.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when either the signal or the kernel are <c>null</c>.</exception>
+        /// <remarks>
+        /// This algorithm is based on the one proposed by J.M. O' Toole and B. Boashash on the article
+        /// "Fast and memory-efficient algorithms for computing quadratic time–frequency distributions",
+        /// Applied and Computational Harmonic Analysis, vol. 35, no. 2, pp. 350–358, 2013.
+        /// </remarks>
         public static TimeFrequencyDistribution Estimate(IReadOnlySignal<double> signal, DopplerLagKernel kernel)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
@@ -164,21 +179,54 @@ namespace Neuronic.TimeFrequency
                 frequencies[i] = (i * 0.5 * signal.SamplingRate) / (frequencies.Length - 1);
             return new TimeFrequencyDistribution(tfd, frequencies, signal.SamplingPeriod / 2);
         }
-
+        
+        /// <summary>
+        /// Estimates the TFD of the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="kernel">The kernel.</param>
+        /// <returns>The estimated TFD.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when either the signal or the kernel are <c>null</c>.</exception>
+        /// <remarks>
+        /// This algorithm is based on the one proposed by J.M. O' Toole and B. Boashash on the article
+        /// "Fast and memory-efficient algorithms for computing quadratic time–frequency distributions",
+        /// Applied and Computational Harmonic Analysis, vol. 35, no. 2, pp. 350–358, 2013.
+        /// </remarks>
         public static TimeFrequencyDistribution Estimate(IReadOnlySignal<float> signal, DopplerLagKernel kernel)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             return Estimate(signal.Map(x => (double) x), kernel);
         }
 
+        /// <summary>
+        /// Gets the sampling period.
+        /// </summary>
         public double SamplingPeriod { get; }
 
+        /// <summary>
+        /// Gets the amount of samples.
+        /// </summary>
         public int Samples => _values.GetLength(0);
 
+        /// <summary>
+        /// Gets the computed frequencies.
+        /// </summary>
         public ReadOnlyCollection<double> Frequencies => Array.AsReadOnly(_frequencies);
 
+        /// <summary>
+        /// Gets the TDF value for the specified frequency and offset.
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="freqIndex">The frequency index.</param>
+        /// <returns>The TFD value.</returns>
         public Complex this[int offset, int freqIndex] => _values[offset, freqIndex];
 
+        /// <summary>
+        /// Gets the TDF value for the specified frequency and offset.
+        /// </summary>
+        /// <param name="delay">The delay.</param>
+        /// <param name="frequency">The frequency.</param>
+        /// <returns>The TFD value.</returns>
         public Complex this[double delay, double frequency]
         {
             get
@@ -191,9 +239,19 @@ namespace Neuronic.TimeFrequency
             }
         }
 
+        /// <summary>
+        /// Enumerates the values associated with the specified frequency.
+        /// </summary>
+        /// <param name="index">The index of the frequency.</param>
+        /// <returns>The TFD values.</returns>
         public IEnumerable<double> EnumerateFrequency(int index) =>
             Enumerable.Range(0, _values.GetLength(0)).Select(j => _values[j, index]);
 
+        /// <summary>
+        /// Enumerates the values associated with the specified offset.
+        /// </summary>
+        /// <param name="index">The offset.</param>
+        /// <returns>The TFD values.</returns>
         public IEnumerable<double> EnumerateOffset(int index) =>
             Enumerable.Range(0, _values.GetLength(1)).Select(i => _values[index, i]);
     }

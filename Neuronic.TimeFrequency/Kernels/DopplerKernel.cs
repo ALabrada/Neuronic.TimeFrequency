@@ -7,12 +7,30 @@ using Accord.Math.Transforms;
 
 namespace Neuronic.TimeFrequency.Kernels
 {
+    /// <summary>
+    /// Base class for Lag Independent kernels.
+    /// </summary>
+    /// <seealso cref="Neuronic.TimeFrequency.Kernels.DopplerLagKernel" />
     public abstract class DopplerKernel : DopplerLagKernel
     {
+        /// <summary>
+        /// Gets or sets the window function samples.
+        /// </summary>
         public double[] Window { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to use time or Doppler domain.
+        /// </summary>
         public bool UseDopplerDomain { get; set; }
 
+        /// <summary>
+        /// Evaluates lag kernel.
+        /// </summary>
+        /// <param name="n">The number of samples in the Doppler domain.</param>
+        /// <param name="nTime">The number of samples in the time domain.</param>
+        /// <param name="output">The output buffer.</param>
+        /// <param name="start">The start index in <paramref name="output"/>.</param>
+        /// <returns>The number of samples.</returns>
         protected virtual int Evaluate(int n, int nTime, double[] output, int start)
         {
             if (UseDopplerDomain)
@@ -20,6 +38,12 @@ namespace Neuronic.TimeFrequency.Kernels
             return EvaluateInTimeDomain(n, output, start);
         }
 
+        /// <summary>
+        /// Evaluates lag kernel.
+        /// </summary>
+        /// <param name="n">The number of samples in the Doppler domain.</param>
+        /// <param name="nTime">The number of samples in the time domain.</param>
+        /// <returns>The lag kernel.</returns>
         protected virtual IList<double> Evaluate(int n, int nTime)
         {
             var output = new double[Math.Max(n, nTime)];
@@ -27,7 +51,7 @@ namespace Neuronic.TimeFrequency.Kernels
             return new ArraySegment<double>(output, 0, count);
         }
 
-        protected virtual int EvaluateInDopplerDomain(int nTime, double[] output, int start)
+        private int EvaluateInDopplerDomain(int nTime, double[] output, int start)
         {
             var win = Window ?? throw new InvalidOperationException("No window selected.");
             var q = win.Length;
@@ -48,7 +72,7 @@ namespace Neuronic.TimeFrequency.Kernels
             return q;
         }
 
-        protected virtual int EvaluateInTimeDomain(int n, double[] output, int start)
+        private int EvaluateInTimeDomain(int n, double[] output, int start)
         {
             var win = Window ?? throw new InvalidOperationException("No window selected.");
             var re = output;
@@ -79,7 +103,7 @@ namespace Neuronic.TimeFrequency.Kernels
                 padWin[start + count - q / 2] = padWin[start + q / 2] = win[q / 2] / 2d;
         }
 
-        protected double[] PadWindow(double[] win, int length)
+        private double[] PadWindow(double[] win, int length)
         {
             if (length < win.Length) throw new ArgumentOutOfRangeException(nameof(length));
             if (length == win.Length) return win;

@@ -2,8 +2,18 @@
 
 namespace Neuronic.TimeFrequency.Kernels
 {
+    /// <summary>
+    /// Smoothed Wigner-Ville Lag-Independent kernel.
+    /// </summary>
+    /// <seealso cref="Neuronic.TimeFrequency.Kernels.DopplerKernel" />
     public class SmoothedWignerVilleDistribution : DopplerKernel
     {
+        /// <summary>
+        /// Evaluates the kernel in the specified buffer.
+        /// </summary>
+        /// <param name="g">The buffer.</param>
+        /// <param name="dopplerSample">The doppler sample.</param>
+        /// <param name="lagSample">The lag sample.</param>
         protected override void Evaluate(double[,] g, double dopplerSample, double lagSample)
         {
             var g1 = new double[g.GetLength(0)];

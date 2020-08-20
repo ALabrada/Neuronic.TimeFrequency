@@ -4,10 +4,23 @@ using System.Numerics;
 
 namespace Neuronic.TimeFrequency.Kernels
 {
+    /// <summary>
+    /// Choi-Williams Distribution.
+    /// </summary>
+    /// <seealso cref="Neuronic.TimeFrequency.Kernels.DopplerLagKernel" />
     public class ChoiWilliamsDistribution: DopplerLagKernel
     {
+        /// <summary>
+        /// Gets or sets the sigma parameter.
+        /// </summary>
         public double Sigma { get; set; }
 
+        /// <summary>
+        /// Evaluates the kernel in the specified buffer.
+        /// </summary>
+        /// <param name="g">The buffer.</param>
+        /// <param name="dopplerSample">The doppler sample.</param>
+        /// <param name="lagSample">The lag sample.</param>
         protected override void Evaluate(double[,] g, double dopplerSample, double lagSample)
         {
             var halfRow = g.GetLength(0) / 2;
