@@ -148,5 +148,30 @@ namespace Neuronic.TimeFrequency.Testing
                 Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-5);
             }
         }
+
+        [TestMethod]
+        [DataRow("ParabEmd_128", DisplayName = "HHT 128 samples with default parameters.")]
+        public void TestEmpiricalModeDecomposition(string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            float[] samples;
+            var expectedValues = new List<double[]>();
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).ToArray());
+            }
+
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples));
+
+            Assert.AreEqual(expectedValues.Count, emd.Count);
+            for (int i = 0; i < expectedValues.Count; i++)
+            {
+                Tools.AssertAreEqual(expectedValues[i], emd[i], 1e-2);
+            }
+        }
     }
 }

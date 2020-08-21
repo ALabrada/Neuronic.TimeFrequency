@@ -89,6 +89,55 @@ namespace Neuronic.TimeFrequency
             }
         }
 
+        public static void CopyTo<T>(this IEnumerable<T> samples, T[] array, int start)
+        {
+            if (samples == null) throw new ArgumentNullException(nameof(samples));
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (start < 0 || start >= array.Length) throw new ArgumentOutOfRangeException(nameof(start));
+            foreach (var item in samples.Take(array.Length - start))
+                array[start++] = item;
+        }
+
+        public static int CountOscilations(this IReadOnlyList<double> x)
+        {
+            var count = 0;
+            var isTop = false;
+            var isDown = false;
+            for (int i = 1; i < x.Count - 1; i++)
+            {
+                if (x[i - 1] < x[i] && x[i + 1] < x[i])
+                    count++;
+                if (x[i - 1] > x[i] && x[i + 1] > x[i])
+                    count++;
+
+                if (x[i - 1] < x[i] && x[i + 1] == x[i])
+                {
+                    isTop = true;
+                    isDown = false;
+                }
+                if (x[i - 1] == x[i] && x[i + 1] < x[i])
+                {
+                    if (isTop)
+                        count++;
+                    isTop = false;
+                }
+
+                if (x[i - 1] > x[i] && x[i + 1] == x[i])
+                {
+                    isTop = false;
+                    isDown = true;
+                }
+                if (x[i - 1] == x[i] && x[i + 1] < x[i])
+                {
+                    if (isDown)
+                        count++;
+                    isDown = false;
+                }
+            }
+
+            return count;
+        }
+
         #region Casting
         public static IReadOnlySignal<TResult> Map<TSource, TResult>(this IReadOnlySignal<TSource> signal, Func<TSource, TResult> map)
         {
