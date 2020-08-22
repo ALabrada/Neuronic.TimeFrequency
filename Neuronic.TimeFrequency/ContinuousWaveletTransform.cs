@@ -12,7 +12,7 @@ namespace Neuronic.TimeFrequency
     /// <summary>
     /// Represents the Continuous Wavelet Transform (CWT).  
     /// </summary>
-    public class ContinuousWaveletTransform: IEnumerable<Complex>
+    public class ContinuousWaveletTransform: IEnumerable<Complex>, IBilinearTimeFrequencyRepresentation
     {
         private readonly Complex[,] _values;
         private readonly double[] _scales;
@@ -219,6 +219,11 @@ namespace Neuronic.TimeFrequency
         public double SamplingPeriod { get; }
 
         /// <summary>
+        /// Gets the amount of samples in the time domain.
+        /// </summary>
+        public int SampleCount => _values.GetLength(0);
+
+        /// <summary>
         /// Gets the wavelet function.
         /// </summary>
         public IWavelet<Complex> Wavelet { get; }
@@ -227,6 +232,30 @@ namespace Neuronic.TimeFrequency
         /// Gets the estimated scales.
         /// </summary>
         public IList<double> Scales => Array.AsReadOnly(_scales);
+
+        /// <summary>
+        /// Gets the amount of samples in the frequency domain.
+        /// </summary>
+        int IBilinearTimeFrequencyRepresentation.FrequencyCount => _values.GetLength(1);
+
+        /// <summary>
+        /// Gets the computed frequencies.
+        /// </summary>
+        IEnumerable<double> IBilinearTimeFrequencyRepresentation.Frequencies => _scales.Select(s => Wavelet.GetFrequencyOf(s, SamplingPeriod));
+
+        double ITimeFrequencyRepresentation.this[int offset, double frequency]
+        {
+            get
+            {
+                var scale = Wavelet.GetScaleFor(frequency, SamplingPeriod);
+                var scaleIndex = Array.BinarySearch(_scales, scale);
+                if (scaleIndex < 0)
+                    scaleIndex = ~scaleIndex;
+                return this[offset, scaleIndex].SquaredMagnitude();
+            }
+        }
+
+        double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] => this[offset, frequencyIndex].SquaredMagnitude();
 
         /// <summary>
         /// Gets the time-frequency content at the specified offset and scale.

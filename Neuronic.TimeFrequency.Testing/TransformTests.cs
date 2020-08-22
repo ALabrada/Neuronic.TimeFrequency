@@ -138,8 +138,8 @@ namespace Neuronic.TimeFrequency.Testing
             var kernel = new ChoiWilliamsDistribution {Sigma = sigma};
             var tfd = TimeFrequencyDistribution.Estimate(new Signal<float>(samples, fs: 10d), kernel);
 
-            Assert.AreEqual(expectedValues.Count, tfd.Samples);
-            Assert.AreEqual(tfd.Frequencies.Count, samples.Length);
+            Assert.AreEqual(expectedValues.Count, tfd.SampleCount);
+            Assert.AreEqual(tfd.FrequencyCount, samples.Length);
             var actualValues = new List<double>(samples.Length);
             for (int i = 0; i < expectedValues.Count; i++)
             {

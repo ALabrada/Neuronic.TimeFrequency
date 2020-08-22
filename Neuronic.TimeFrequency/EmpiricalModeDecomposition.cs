@@ -13,11 +13,14 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace Neuronic.TimeFrequency
 {
+    /// <summary>
+    /// Empirical Mode Decomposition (EMD) in Intrinsic Mode Functions (IMF).
+    /// </summary>
     public class EmpiricalModeDecomposition: IReadOnlyList<IReadOnlySignal<double>>
     {
         private readonly IList<double[]> _imfs;
 
-        public EmpiricalModeDecomposition(IList<double[]> imfs, double samplingPeriod)
+        private EmpiricalModeDecomposition(IList<double[]> imfs, double samplingPeriod)
         {
             _imfs = imfs;
             SamplingPeriod = samplingPeriod;
@@ -183,6 +186,19 @@ namespace Neuronic.TimeFrequency
                 yield return interpolation(x + 1);
         }
 
+        /// <summary>
+        /// Estimates the EMD of the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="outerStop">The stop criteria of the outer loop. Default is <see cref="ResidualStopCriteria"/>.</param>
+        /// <param name="innerStop">The stop criteria of the inner loop, responsible for obtaining each IMF. Default is <see cref="ResolutionStopCriteria"/>.</param>
+        /// <param name="alpha">Gradient step size, in the range (0, 1].</param>
+        /// <returns>The EMD of <paramref name="signal"/>.</returns>
+        /// <remarks>
+        /// This algorithm is based on the work of Rato, R. T., Ortigueira, M. D. and Batista, A. G., published in the article
+        /// "On the HHT, its problems, and some solutions",
+        /// Mechanical Systems and Signal Processing , vol. 22, no. 6, pp. 1374-1394, August 2008.
+        /// </remarks>
         public static EmpiricalModeDecomposition Estimate(IReadOnlySignal<double> signal, 
             IStopCriteria<OuterState> outerStop = null, IStopCriteria<InnerState> innerStop = null, 
             double alpha = 1d)
@@ -203,7 +219,7 @@ namespace Neuronic.TimeFrequency
             outerStop = outerStop ?? new ResidualStopCriteria(energy);
             innerStop = innerStop ?? new ResolutionStopCriteria();
 
-            for (int itOut = 0; !outerStop.ShouldStop(new OuterState(itOut, samples)); itOut++)
+            for (int itOut = 0; !outerStop.ShouldStop(new OuterState(itOut, samples, results)); itOut++)
             {
                 var imf = new Signal<double>(new double[signal.Count], signal.Start, signal.SamplingRate);
                 samples.CopyTo(imf.Samples, 0);
@@ -240,6 +256,19 @@ namespace Neuronic.TimeFrequency
             return new EmpiricalModeDecomposition(results, signal.SamplingPeriod);
         }
 
+        /// <summary>
+        /// Estimates the EMD of the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="outerStop">The stop criteria of the outer loop.</param>
+        /// <param name="innerStop">The stop criteria of the inner loop, responsible for obtaining each IMF.</param>
+        /// <param name="alpha">Gradient step size, in the range (0, 1].</param>
+        /// <returns>The EMD of <paramref name="signal"/>.</returns>
+        /// <remarks>
+        /// This algorithm is based on the work of Rato, R. T., Ortigueira, M. D. and Batista, A. G., published in the article
+        /// "On the HHT, its problems, and some solutions",
+        /// Mechanical Systems and Signal Processing , vol. 22, no. 6, pp. 1374-1394, August 2008.
+        /// </remarks>
         public static EmpiricalModeDecomposition Estimate(IReadOnlySignal<float> signal,
             IStopCriteria<OuterState> outerStop = null, IStopCriteria<InnerState> innerStop = null,
             double alpha = 1d)
@@ -247,12 +276,29 @@ namespace Neuronic.TimeFrequency
             return Estimate(signal.Map(x => (double) x), outerStop, innerStop, alpha);
         }
 
+        /// <summary>
+        /// Gets the sampling period.
+        /// </summary>
         public double SamplingPeriod { get; }
 
+        /// <summary>
+        /// Gets the amount of IMFs.
+        /// </summary>
         public int Count => _imfs.Count;
 
+        /// <summary>
+        /// Gets the IMF at the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <returns>The IMF.</returns>
         public IReadOnlySignal<double> this[int index] => new Signal<double>(_imfs[index], fs: 1/SamplingPeriod);
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// An enumerator that can be used to iterate through the collection.
+        /// </returns>
         public IEnumerator<IReadOnlySignal<double>> GetEnumerator()
         {
             return Enumerable.Range(0, Count).Select(i => this[i]).GetEnumerator();
@@ -263,6 +309,17 @@ namespace Neuronic.TimeFrequency
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Performs the spectral analysis of the EMD using local AR approximations.
+        /// </summary>
+        /// <param name="windowLength">Length of the analysis window.</param>
+        /// <returns>The spectral analysis of the EMD.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="windowLength"/> is not positive.</exception>
+        /// <remarks>
+        /// This algorithm is based on the method proposed by Rato, R. T., Ortigueira, M. D. and Batista, A. G. in the article
+        /// "On the HHT, its problems, and some solutions",
+        /// Mechanical Systems and Signal Processing , vol. 22, no. 6, pp. 1374-1394, August 2008.
+        /// </remarks>
         public SpectralAnalysis LocalSpectralAnalysis(int windowLength = 40)
         {
             var n = _imfs[0].Length;
@@ -299,9 +356,16 @@ namespace Neuronic.TimeFrequency
                 components.Add(new SpectralAnalysis.MonocomponentSignal(amplitude, frequency));
             }
 
-            return new SpectralAnalysis(components, SamplingPeriod);
+            return new SpectralAnalysis(components, SamplingPeriod, n);
         }
 
+        /// <summary>
+        /// Performs the Hilbert Spectral Analysis of the EMD.
+        /// </summary>
+        /// <returns>The Hilbert-Huang Transform of the signal.</returns>
+        /// <remarks>
+        /// This algorithm is based on Matlab.
+        /// </remarks>
         public SpectralAnalysis HilbertSpectralAnalysis()
         {
             var fs = 1d / SamplingPeriod;
@@ -333,22 +397,42 @@ namespace Neuronic.TimeFrequency
                 components.Add(component);
             }
 
-            return new SpectralAnalysis(components, SamplingPeriod);
+            return new SpectralAnalysis(components, SamplingPeriod, z.Count);
         }
 
+        /// <summary>
+        /// Contains the state of the outer loop of the iterative algorithm used in
+        /// <see cref="Estimate(IReadOnlySignal{double},IStopCriteria{OuterState},IStopCriteria{InnerState},double)"/>.
+        /// </summary>
         public struct OuterState
         {
-            public OuterState(int iteration, IReadOnlySignal<double> imf)
+            internal OuterState(int iteration, IReadOnlySignal<double> signal, IReadOnlyList<IReadOnlyList<double>> imfs)
             {
-                IntrinsicModeFunction = imf;
+                Signal = signal;
+                IntrinsicModeFunctions = imfs;
                 Iteration = iteration;
             }
 
-            public IReadOnlySignal<double> IntrinsicModeFunction { get; }
+            /// <summary>
+            /// Gets the signal.
+            /// </summary>
+            public IReadOnlySignal<double> Signal { get; }
 
+            /// <summary>
+            /// Gets the obtained intrinsic mode functions.
+            /// </summary>
+            public IReadOnlyList<IReadOnlyList<double>> IntrinsicModeFunctions { get; }
+
+            /// <summary>
+            /// Gets the iteration.
+            /// </summary>
             public int Iteration { get; }
         }
 
+        /// <summary>
+        /// Contains the state of the inner loop of the iterative algorithm used in
+        /// <see cref="Estimate(IReadOnlySignal{double},IStopCriteria{OuterState},IStopCriteria{InnerState},double)"/>.
+        /// </summary>
         public struct InnerState
         {
             internal InnerState(int iteration, IReadOnlySignal<double> imf, IReadOnlySignal<double> bias)
@@ -358,28 +442,65 @@ namespace Neuronic.TimeFrequency
                 Iteration = iteration;
             }
 
+            /// <summary>
+            /// Gets the obtained intrinsic mode function.
+            /// </summary>
             public IReadOnlySignal<double> IntrinsicModeFunction { get; }
 
+            /// <summary>
+            /// Gets the average of the signal envelopes.
+            /// </summary>
             public IReadOnlySignal<double> Bias { get; }
 
+            /// <summary>
+            /// Gets the iteration.
+            /// </summary>
             public int Iteration { get; }
         }
     }
 
+    /// <summary>
+    /// The default stop criteria for the outer loop of
+    /// <see cref="EmpiricalModeDecomposition.Estimate(IReadOnlySignal{double},IStopCriteria{EmpiricalModeDecomposition.OuterState},IStopCriteria{EmpiricalModeDecomposition.InnerState},double)"/>
+    /// </summary>
     public class ResidualStopCriteria: IStopCriteria<EmpiricalModeDecomposition.OuterState>
     {
         private readonly double _energy;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResidualStopCriteria"/> class.
+        /// </summary>
+        /// <param name="originalSignal">The original signal.</param>
+        /// <param name="residual">The residual energy limit in dB. Normally between 40 and 60 dB.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="residual"/> is not a positive value.
+        /// </exception>
         public ResidualStopCriteria(IReadOnlySignal<double> originalSignal, double residual = 50d)
         : this (originalSignal.Sum(x => x*x), residual)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResidualStopCriteria"/> class.
+        /// </summary>
+        /// <param name="originalSignal">The original signal.</param>
+        /// <param name="residual">The residual energy limit in dB. Normally between 40 and 60 dB.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="residual"/> is not a positive value.
+        /// </exception>
         public ResidualStopCriteria(IReadOnlySignal<float> originalSignal, double residual = 50d)
             : this (originalSignal.Map(x => (double) x), residual)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResidualStopCriteria"/> class.
+        /// </summary>
+        /// <param name="energy">The energy.</param>
+        /// <param name="residual">The residual energy in dB. Normally between 40 and 60 dB.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="residual"/> is not a positive value.
+        /// </exception>
         public ResidualStopCriteria(double energy, double residual = 50d)
         {
             if (residual <= 0) throw new ArgumentOutOfRangeException(nameof(residual));
@@ -388,32 +509,62 @@ namespace Neuronic.TimeFrequency
             _energy = energy;
         }
 
+        /// <summary>
+        /// Gets the residual energy limit.
+        /// </summary>
         public double Residual { get; }
 
-        public bool ShouldStop(EmpiricalModeDecomposition.OuterState state)
+        /// <summary>
+        /// Determines if the algorithm should stop iterating.
+        /// </summary>
+        /// <param name="state">The current state.</param>
+        /// <returns>
+        ///   <c>true</c> if the algorithm should stop; otherwise, <c>false</c>.
+        /// </returns>
+        bool IStopCriteria<EmpiricalModeDecomposition.OuterState>.ShouldStop(EmpiricalModeDecomposition.OuterState state)
         {
-            var oscCount = state.IntrinsicModeFunction.CountOscilations();
+            var oscCount = state.Signal.CountOscilations();
             if (oscCount <= 2)
                 return true;
 
-            var sampleEnergy = state.IntrinsicModeFunction.Sum(x => x * x);
+            var sampleEnergy = state.Signal.Sum(x => x * x);
             var currentResidual = sampleEnergy > 0 ? 10 * Math.Log10(_energy / sampleEnergy) : double.PositiveInfinity;
 
             return currentResidual >= Residual;
         }
     }
 
+
+    /// <summary>
+    /// The default stop criteria for the inner loop of
+    /// <see cref="EmpiricalModeDecomposition.Estimate(IReadOnlySignal{double},IStopCriteria{EmpiricalModeDecomposition.OuterState},IStopCriteria{EmpiricalModeDecomposition.InnerState},double)"/>
+    /// </summary>
     public class ResolutionStopCriteria : IStopCriteria<EmpiricalModeDecomposition.InnerState>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionStopCriteria"/> class.
+        /// </summary>
+        /// <param name="resolution">The resolution limit in dB. Normally between 40 and 60 dB.</param>
+        /// <exception cref="ArgumentOutOfRangeException">resolution</exception>
         public ResolutionStopCriteria(double resolution = 50d)
         {
             if (resolution <= 0) throw new ArgumentOutOfRangeException(nameof(resolution));
             Resolution = resolution;
         }
 
+        /// <summary>
+        /// Gets the resolution limit.
+        /// </summary>
         public double Resolution { get; }
 
-        public bool ShouldStop(EmpiricalModeDecomposition.InnerState state)
+        /// <summary>
+        /// Determines if the algorithm should stop iterating.
+        /// </summary>
+        /// <param name="state">The current state.</param>
+        /// <returns>
+        ///   <c>true</c> if the algorithm should stop; otherwise, <c>false</c>.
+        /// </returns>
+        bool IStopCriteria<EmpiricalModeDecomposition.InnerState>.ShouldStop(EmpiricalModeDecomposition.InnerState state)
         {
             var currentEnergy = state.IntrinsicModeFunction.Sum(x => x * x);
             var biasEnergy = state.Bias.Sum(x => x * x);
@@ -424,16 +575,29 @@ namespace Neuronic.TimeFrequency
         }
     }
 
+    /// <summary>
+    /// A stop criteria for 
+    /// <see cref="EmpiricalModeDecomposition.Estimate(IReadOnlySignal{double},IStopCriteria{EmpiricalModeDecomposition.OuterState},IStopCriteria{EmpiricalModeDecomposition.InnerState},double)"/>
+    /// with a fixed number of iterations.
+    /// </summary>
     public class FixedStopCriteria : 
         IStopCriteria<EmpiricalModeDecomposition.InnerState>,
         IStopCriteria<EmpiricalModeDecomposition.OuterState>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FixedStopCriteria"/> class.
+        /// </summary>
+        /// <param name="iterationCount">The iteration count.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="iterationCount"/> is not positive.</exception>
         public FixedStopCriteria(int iterationCount)
         {
             if (iterationCount <= 0) throw new ArgumentOutOfRangeException(nameof(iterationCount));
             IterationCount = iterationCount;
         }
 
+        /// <summary>
+        /// Gets the iteration count.
+        /// </summary>
         public int IterationCount { get; }
 
         bool IStopCriteria<EmpiricalModeDecomposition.InnerState>.ShouldStop(EmpiricalModeDecomposition.InnerState state)

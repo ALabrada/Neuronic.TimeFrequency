@@ -12,7 +12,7 @@ namespace Neuronic.TimeFrequency
     /// <summary>
     /// Time-Frequency distribution (TFD).
     /// </summary>
-    public class TimeFrequencyDistribution
+    public class TimeFrequencyDistribution : IBilinearTimeFrequencyRepresentation
     {
         private readonly double[,] _values;
         private readonly double[] _frequencies;
@@ -200,28 +200,47 @@ namespace Neuronic.TimeFrequency
         /// <summary>
         /// Gets the amount of samples.
         /// </summary>
-        public int Samples => _values.GetLength(0);
+        public int SampleCount => _values.GetLength(0);
+
+        /// <summary>
+        /// Gets the amount of samples in the frequency domain.
+        /// </summary>
+        public int FrequencyCount => _values.GetLength(1);
 
         /// <summary>
         /// Gets the computed frequencies.
         /// </summary>
-        public ReadOnlyCollection<double> Frequencies => Array.AsReadOnly(_frequencies);
+        public IEnumerable<double> Frequencies => Array.AsReadOnly(_frequencies);
+
+        double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] =>
+            this[offset, frequencyIndex].SquaredMagnitude();
 
         /// <summary>
-        /// Gets the TDF value for the specified frequency and offset.
+        /// Gets the TFD value for the specified frequency and offset.
         /// </summary>
         /// <param name="offset">The offset.</param>
         /// <param name="freqIndex">The frequency index.</param>
         /// <returns>The TFD value.</returns>
         public Complex this[int offset, int freqIndex] => _values[offset, freqIndex];
 
+        double ITimeFrequencyRepresentation.this[int offset, double frequency]
+        {
+            get
+            {
+                var freqIndex = Array.BinarySearch(_frequencies, frequency);
+                if (freqIndex < 0)
+                    freqIndex = ~freqIndex;
+                return this[offset, freqIndex].SquaredMagnitude();
+            }
+        }
+
         /// <summary>
-        /// Gets the TDF value for the specified frequency and offset.
+        /// Gets the TFD value for the specified frequency and offset.
         /// </summary>
         /// <param name="delay">The delay.</param>
         /// <param name="frequency">The frequency.</param>
         /// <returns>The TFD value.</returns>
-        public Complex this[double delay, double frequency]
+        public double this[double delay, double frequency]
         {
             get
             {
@@ -229,7 +248,7 @@ namespace Neuronic.TimeFrequency
                 var freqIndex = Array.BinarySearch(_frequencies, frequency);
                 if (freqIndex < 0)
                     freqIndex = ~freqIndex;
-                return this[offset, freqIndex];
+                return this[offset, freqIndex].Magnitude;
             }
         }
 
