@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Accord;
 using Accord.Diagnostics;
+using Accord.Math;
+using MathNet.Numerics;
+using MathNet.Numerics.Differentiation;
 using MathNet.Numerics.Interpolation;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace Neuronic.TimeFrequency
 {
@@ -18,7 +22,7 @@ namespace Neuronic.TimeFrequency
             SamplingPeriod = samplingPeriod;
         }
 
-        private static void GetLocalExtremeValues(IReadOnlyList<double> signal, IList<DoublePoint> max, IList<DoublePoint> min)
+        private static void GetLocalExtremeValues(IReadOnlyList<double> signal, List<DoublePoint> max, List<DoublePoint> min)
         {
             max.Clear();
             min.Clear();
@@ -104,13 +108,78 @@ namespace Neuronic.TimeFrequency
 
             min.Insert(0, new DoublePoint(-max[1].X, min[0].Y));
             min.Add(new DoublePoint(2 * (signal.Count - 1) - max[max.Count - 2].X, min[min.Count - 1].Y));
+
+            max.Sort((p1, p2) => p1.X.CompareTo(p2.X));
+            min.Sort((p1, p2) => p1.X.CompareTo(p2.X));
         }
 
         private static IEnumerable<double> SplineInterpolation(IReadOnlyList<DoublePoint> source, IEnumerable<double> eval)
         {
-            var spline = CubicSpline.InterpolateNatural(source.Select(v => v.X), source.Select(v => v.Y));
+            Func<double, double> interpolation;
+            var n = source.Count;
+            if (n < 2)
+                throw new ArgumentException("2 points at least are required.", nameof(source));
+
+            var xs = new double[n];
+            var ys = new double[n];
+
+            source.Select(v => v.X + 1).CopyTo(xs, 0);
+            source.Select(v => v.Y).CopyTo(ys, 0);
+
+            double dx(int i) => xs[i] - xs[i - 1];
+            double divdif(int i) => (ys[i] - ys[i - 1]) / (xs[i] - xs[i - 1]);
+
+            if (n == 2)
+            {
+                //var temp = divdif(1);
+                //ys[1] = ys[0];
+                //ys[0] = temp;
+
+                interpolation = StepInterpolation.InterpolateSorted(xs, ys).Interpolate;
+            }
+            else if (n == 3)
+            {
+                ys[2] = divdif(2);
+                ys[1] = divdif(1);
+                ys[2] = (ys[2] - ys[1]) / (xs[2] - xs[0]);
+                ys[1] -= ys[2] * dx(1);
+
+                var p = new Polynomial(ys);
+                interpolation = p.Evaluate;
+            }
+            else
+            {
+                var b = new DenseVector(n);
+                for (int i = 1; i < n - 1; i++)
+                    b[i] = 3d * (dx(i + 1) * divdif(i) + dx(i) * divdif(i + 1));
+
+                var x31 = xs[2] - xs[0];
+                var xn = xs[xs.Length - 1] - xs[xs.Length - 3];
+                b[0] = ((dx(1) + 2 * x31) * dx(2) * divdif(1) + dx(1) * dx(1) * divdif(2)) / x31;
+                b[n - 1] = (dx(n - 1) * dx(n - 1) * divdif(n - 2) + (2 * xn + dx(n - 1)) * dx(n - 2) * divdif(n - 1)) / xn;
+
+                var c = new SparseMatrix(n, n)
+                {
+                    [0, 1] = x31,
+                    [0, 0] = dx(2),
+                    [n - 1, n - 1] = dx(n - 2),
+                    [n - 1, n - 2] = xn
+                };
+                for (int i = 1; i <= n - 2; i++)
+                {
+                    c[i, i + 1] = dx(i);
+                    c[i, i] = 2d * (dx(i + 1) + dx(i));
+                    c[i, i - 1] = dx(i + 1);
+                }
+
+                var slopes = c.Solve(b).ToArray();
+
+                var spline = CubicSpline.InterpolateHermiteSorted(xs, ys, slopes);
+                interpolation = spline.Interpolate;
+            }
+            
             foreach (var x in eval)
-                yield return spline.Interpolate(x);
+                yield return interpolation(x + 1);
         }
 
         public static EmpiricalModeDecomposition Estimate(IReadOnlySignal<double> signal, 
@@ -118,8 +187,6 @@ namespace Neuronic.TimeFrequency
             double alpha = 1d)
         {
             if (alpha <= 0 || alpha > 1) throw new ArgumentOutOfRangeException(nameof(alpha));
-            outerStop = outerStop ?? new ResidualStopCriteria(signal);
-            innerStop = innerStop ?? new ResolutionStopCriteria();
 
             var localMax = new List<DoublePoint>(signal.Count);
             var localMin = new List<DoublePoint>(signal.Count);
@@ -127,14 +194,17 @@ namespace Neuronic.TimeFrequency
 
             var samples = new Signal<double>(new double[signal.Count], signal.Start, signal.SamplingRate);
             signal.CopyTo(samples.Samples, 0);
-
-
-            var imf = new Signal<double>(new double[signal.Count], signal.Start, signal.SamplingRate);
+            
             var bias = new Signal<double>(new double[signal.Count], signal.Start, signal.SamplingRate);
 
             var energy = signal.Sum(x => x * x);
+
+            outerStop = outerStop ?? new ResidualStopCriteria(energy);
+            innerStop = innerStop ?? new ResolutionStopCriteria();
+
             for (int itOut = 0; !outerStop.ShouldStop(new OuterState(itOut, samples)); itOut++)
             {
+                var imf = new Signal<double>(new double[signal.Count], signal.Start, signal.SamplingRate);
                 samples.CopyTo(imf.Samples, 0);
 
                 GetLocalExtremeValues(imf, localMax, localMin);
@@ -227,16 +297,21 @@ namespace Neuronic.TimeFrequency
         private readonly double _energy;
 
         public ResidualStopCriteria(IReadOnlySignal<double> originalSignal, double residual = 50d)
+        : this (originalSignal.Sum(x => x*x), residual)
         {
-            if (originalSignal == null) throw new ArgumentNullException(nameof(originalSignal));
-            if (residual <= 0) throw new ArgumentOutOfRangeException(nameof(residual));
-            Residual = residual;
-            _energy = originalSignal.Sum(x => x * x);
         }
 
         public ResidualStopCriteria(IReadOnlySignal<float> originalSignal, double residual = 50d)
             : this (originalSignal.Map(x => (double) x), residual)
         {
+        }
+
+        public ResidualStopCriteria(double energy, double residual = 50d)
+        {
+            if (residual <= 0) throw new ArgumentOutOfRangeException(nameof(residual));
+            if (energy < 0) throw new ArgumentOutOfRangeException(nameof(energy));
+            Residual = residual;
+            _energy = energy;
         }
 
         public double Residual { get; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -60,6 +61,7 @@ namespace Neuronic.TimeFrequency.Testing
             Assert.AreEqual(expectedValues.Count, actualValues.Count);
             var dif = expectedValues.Zip(actualValues, (x, y) => Math.Abs(x - y)).Sum();
             var relDif = dif / expectedValues.Count;
+            Trace.WriteLine($"Difference: {relDif:F5}");
             Assert.AreEqual(0, relDif, delta);
         }
 

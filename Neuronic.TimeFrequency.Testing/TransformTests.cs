@@ -170,7 +170,7 @@ namespace Neuronic.TimeFrequency.Testing
             Assert.AreEqual(expectedValues.Count, emd.Count);
             for (int i = 0; i < expectedValues.Count; i++)
             {
-                Tools.AssertAreEqual(expectedValues[i], emd[i], 1e-2);
+                Tools.AssertAreEqual(expectedValues[i], emd[i], 1e-4*(1<<i));
             }
         }
     }
