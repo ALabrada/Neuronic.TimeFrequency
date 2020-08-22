@@ -71,6 +71,40 @@ namespace Neuronic.TimeFrequency
         }
 
         /// <summary>
+        /// Calculates the spectrogram of the signal by sampling the component signals in the frequency domain.
+        /// </summary>
+        /// <param name="spectralResolution">The desired spectral resolution.</param>
+        /// <returns>The spectrogram.</returns>
+        public IBilinearTimeFrequencyRepresentation GetSpectrogram(double spectralResolution = 0)
+        {
+            if (spectralResolution <= 0)
+                spectralResolution = 1d / (SampleCount * SamplingPeriod);
+
+            var maxFrequency = 0.5 / SamplingPeriod;
+            var frequencies = new double[(int) Math.Ceiling(maxFrequency / spectralResolution)];
+            for (int i = 0; i < frequencies.Length; i++)
+                frequencies[i] = i * spectralResolution;
+
+            var amplitudes = new double[SampleCount, frequencies.Length];
+            for (int offset = 0; offset < SampleCount; offset++)
+            {
+                foreach (var component in _components)
+                {
+                    var freqIndex = offset - component.FrequencyOffset;
+                    if (freqIndex >= 0 && freqIndex < component.Frequency.Count)
+                    {
+                        var frequency = component.Frequency[freqIndex];
+                        var j = (int) Math.Round(frequency / spectralResolution);
+                        if (j >= 0 && j < frequencies.Length)
+                            amplitudes[offset, j] += component.Amplitude[offset];
+                    }
+                }
+            }
+
+            return new TimeFrequencyDistribution(amplitudes, frequencies, SamplingPeriod);
+        }
+
+        /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>

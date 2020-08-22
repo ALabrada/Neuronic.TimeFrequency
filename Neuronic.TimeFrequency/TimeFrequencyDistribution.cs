@@ -17,7 +17,7 @@ namespace Neuronic.TimeFrequency
         private readonly double[,] _values;
         private readonly double[] _frequencies;
 
-        private TimeFrequencyDistribution(double[,] values, double[] frequencies, double samplingPeriod)
+        internal TimeFrequencyDistribution(double[,] values, double[] frequencies, double samplingPeriod)
         {
             _values = values;
             _frequencies = frequencies;
