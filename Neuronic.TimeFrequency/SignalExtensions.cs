@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Accord.Math.Transforms;
 
 namespace Neuronic.TimeFrequency
 {
@@ -86,6 +87,40 @@ namespace Neuronic.TimeFrequency
                 for (var j = Math.Max(0, -start); j < kernel.Count && j + start < samples.Count; j++)
                     sum += samples[j + start] * kernel[kernel.Count - 1 - j];
                 result[i] = sum;
+            }
+        }
+
+        public static void HilbertTransform(this Signal<Complex> signal)
+        {
+            var n = signal.Count;
+            FourierTransform2.FFT(signal.Samples, FourierTransform.Direction.Forward);
+
+            for (int i = 1; i < n / 2; i++)
+                signal[i] *= 2d;
+            Array.Clear(signal.Samples, n / 2 + 1, n - n / 2 - 1);
+
+            FourierTransform2.FFT(signal.Samples, FourierTransform.Direction.Backward);
+        }
+
+        public static void Unwrap(this Signal<double> signal, double tolerance = Math.PI)
+        {
+            var cumSum = 0d;
+            var last = signal[0];
+            for (int i = 1; i < signal.Count; i++)
+            {
+                var sample = signal[i];
+                var dp = sample - last;
+                var dps = (dp + Math.PI) % (2 * Math.PI);
+                if (dps < 0)
+                    dps = 2 * Math.PI + dps;
+                dps -= Math.PI;
+                if (dps == -Math.PI && dp > 0)
+                    dps = Math.PI;
+                var corrected = Math.Abs(dp) < tolerance ? 0d : dps - dp;
+
+                cumSum += corrected;
+                signal[i] += cumSum;
+                last = sample;
             }
         }
 

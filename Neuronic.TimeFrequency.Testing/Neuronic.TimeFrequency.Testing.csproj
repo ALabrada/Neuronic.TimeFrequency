@@ -120,6 +120,7 @@
     <None Include="Resources\gen_kernel_swvd_hann51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_rect51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_rect51_time.csv" />
+    <None Include="Resources\HHT_128.csv" />
     <None Include="Resources\mycwt_gaus1.csv" />
     <None Include="Resources\mycwt_gaus5.csv" />
     <None Include="Resources\mycwt_mexh.csv" />

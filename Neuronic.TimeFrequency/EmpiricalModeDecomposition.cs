@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Accord;
 using Accord.Diagnostics;
 using Accord.Math;
@@ -55,7 +56,7 @@ namespace Neuronic.TimeFrequency
                 {
                     point.X = (point.X + previous.X) / 2;
                     point.Y = Math.Max(point.Y, previous.Y);
-                    output[max.Count - 1] = point;
+                    output[output.Count - 1] = point;
                 }
                 else
                     output.Add(point);
@@ -260,6 +261,79 @@ namespace Neuronic.TimeFrequency
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public SpectralAnalysis LocalSpectralAnalysis(int windowLength = 40)
+        {
+            var n = _imfs[0].Length;
+            if (windowLength <= 0 || windowLength > n) throw new ArgumentOutOfRangeException(nameof(windowLength));
+            var max = new List<DoublePoint>(n);
+            var min = new List<DoublePoint>(n);
+            var components = new List<SpectralAnalysis.MonocomponentSignal>(_imfs.Count);
+
+            foreach (var imf in _imfs)
+            {
+                GetLocalExtremeValues(imf, max, min);
+                
+                var amplitude = new double[n];
+                SplineInterpolation(max, Enumerable.Range(0, imf.Length).Select(x => (double)x)).CopyTo(amplitude, 0);
+
+                double FM(int index) => imf[index] / amplitude[index];
+
+                var frequency = new double[n - windowLength + 1];
+
+                for (int i = 0; i < frequency.Length; i++)
+                {
+                    var sqSum = 0d;
+                    var sum = 0d;
+                    for (int j = 1, k = i + j; j < windowLength - 1; j++, k++)
+                    {
+                        var x = FM(k);
+                        sum += x * (FM(k - 1) + FM(k + 1));
+                        sqSum += 2 * x * x;
+                    }
+
+                    frequency[i] = Math.Acos(sum / sqSum) / (2 * Math.PI * SamplingPeriod);
+                }
+
+                components.Add(new SpectralAnalysis.MonocomponentSignal(amplitude, frequency));
+            }
+
+            return new SpectralAnalysis(components, SamplingPeriod);
+        }
+
+        public SpectralAnalysis HilbertSpectralAnalysis()
+        {
+            var fs = 1d / SamplingPeriod;
+            var ws = fs / (2 * Math.PI);
+
+            var components = new List<SpectralAnalysis.MonocomponentSignal>(_imfs.Count);
+            var z = new Signal<Complex>(new Complex[_imfs[0].Length]);
+
+            foreach (var imf in _imfs)
+            {
+                imf.Select(x => (Complex) x).CopyTo(z.Samples, 0);
+
+                z.HilbertTransform();
+
+                var amplitude = new double[z.Count];
+                z.Select(c => c.Magnitude).CopyTo(amplitude, 0);
+
+                var frequency = new Signal<double>(new double[z.Count], fs: fs);
+                z.Select(c => c.Phase).CopyTo(frequency.Samples, 0);
+
+                frequency.Unwrap();
+                frequency.Differentiate();
+
+                for (int i = 0; i < frequency.Count; i++)
+                    frequency[i] *= ws;
+
+                var component = new SpectralAnalysis.MonocomponentSignal(amplitude, 
+                    new ArraySegment<double>(frequency.Samples, 0, frequency.Count - 1));
+                components.Add(component);
+            }
+
+            return new SpectralAnalysis(components, SamplingPeriod);
         }
 
         public struct OuterState

@@ -150,7 +150,7 @@ namespace Neuronic.TimeFrequency.Testing
         }
 
         [TestMethod]
-        [DataRow("ParabEmd_128", DisplayName = "HHT 128 samples with default parameters.")]
+        [DataRow("ParabEmd_128", DisplayName = "EMD 128 samples with default parameters.")]
         public void TestEmpiricalModeDecomposition(string valueList)
         {
             var resources = Resources.ResourceManager;
@@ -171,6 +171,32 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < expectedValues.Count; i++)
             {
                 Tools.AssertAreEqual(expectedValues[i], emd[i], 1e-4*(1<<i));
+            }
+        }
+
+        [TestMethod]
+        [DataRow(10d, "HHT_128", DisplayName = "HHT 128 samples with default parameters.")]
+        public void TestHilbertHuangTransform(double fs, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            float[] samples;
+            var expectedValues = new List<double[]>();
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).Take(samples.Length - 1).ToArray());
+            }
+
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples, fs: fs));
+            var hht = emd.HilbertSpectralAnalysis();
+
+            Assert.AreEqual(expectedValues.Count, hht.Count);
+            for (int i = 0; i < expectedValues.Count; i++)
+            {
+                Tools.AssertAreEqual(expectedValues[i], hht[i].Frequency, 1e-4 * (2 << i));
             }
         }
     }

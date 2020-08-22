@@ -26,22 +26,16 @@ namespace Neuronic.TimeFrequency
 
         private static Complex[] GetAnalytic(IReadOnlySignal<double> signal)
         {
-            var z = new Complex[2 * signal.Count];
+            var z = new Signal<Complex>(new Complex[2 * signal.Count], signal.Start, signal.SamplingRate);
             for (int i = 0; i < signal.Count; i++)
                 z[i] = signal[i];
-            FourierTransform2.FFT(z, FourierTransform.Direction.Forward);
+            
+            z.HilbertTransform();
 
-            for (int i = 1; i < signal.Count; i++)
-            {
-                z[i] *= 2d;
-                z[signal.Count + i] = 0;
-            }
-
-            FourierTransform2.FFT(z, FourierTransform.Direction.Backward);
             for (int i = 0; i < signal.Count; i++)
                 z[signal.Count + i] = 0;
 
-            return z;
+            return z.Samples;
         }
 
         private static List<Complex[]> GetTL(int n, int n2, Complex[] z)
