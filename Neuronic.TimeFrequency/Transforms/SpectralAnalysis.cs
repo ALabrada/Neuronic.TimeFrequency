@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Represents the spectral analysis of a signal, by analyzing it's principal components.  

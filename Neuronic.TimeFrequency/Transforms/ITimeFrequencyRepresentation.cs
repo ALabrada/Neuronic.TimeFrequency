@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Abstraction of a Time Frequency Representation (TFR).
@@ -29,7 +29,7 @@ namespace Neuronic.TimeFrequency
     /// <summary>
     /// Abstraction of a Bilinear or Quadratic Time Frequency Representation (QTFR).
     /// </summary>
-    /// <seealso cref="Neuronic.TimeFrequency.ITimeFrequencyRepresentation" />
+    /// <seealso cref="ITimeFrequencyRepresentation" />
     public interface IBilinearTimeFrequencyRepresentation : ITimeFrequencyRepresentation
     {
         /// <summary>

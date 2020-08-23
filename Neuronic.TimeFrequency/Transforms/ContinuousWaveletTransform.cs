@@ -6,7 +6,7 @@ using System.Numerics;
 using MathNet.Numerics;
 using Neuronic.TimeFrequency.Wavelets;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Represents the Continuous Wavelet Transform (CWT).  

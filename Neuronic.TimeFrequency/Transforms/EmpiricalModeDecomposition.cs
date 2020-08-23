@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-
 using MathNet.Numerics;
-using MathNet.Numerics.Differentiation;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra.Double;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Empirical Mode Decomposition (EMD) in Intrinsic Mode Functions (IMF).

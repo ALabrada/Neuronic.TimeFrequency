@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Numerics;
 using Neuronic.TimeFrequency.Wavelets;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Represents the Discrete Wavelet Transform (DWT).  

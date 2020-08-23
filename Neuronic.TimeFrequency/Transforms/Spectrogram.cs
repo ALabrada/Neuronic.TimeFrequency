@@ -5,7 +5,7 @@ using System.Numerics;
 using MathNet.Numerics;
 using Neuronic.TimeFrequency.Kernels;
 
-namespace Neuronic.TimeFrequency
+namespace Neuronic.TimeFrequency.Transforms
 {
     /// <summary>
     /// Spectrogram using Short Time Fourier Transform (STFT).

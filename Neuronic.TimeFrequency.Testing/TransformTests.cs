@@ -6,6 +6,7 @@ using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Kernels;
 using Neuronic.TimeFrequency.Testing.Properties;
+using Neuronic.TimeFrequency.Transforms;
 using Neuronic.TimeFrequency.Wavelets;
 
 namespace Neuronic.TimeFrequency.Testing
