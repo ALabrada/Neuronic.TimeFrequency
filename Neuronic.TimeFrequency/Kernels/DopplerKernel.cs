@@ -112,6 +112,12 @@ namespace Neuronic.TimeFrequency.Kernels
             return result;
         }
 
+        /// <summary>
+        /// Pads the window to the specified length.
+        /// </summary>
+        /// <param name="src">The source window.</param>
+        /// <param name="dst">The destination window.</param>
+        /// <exception cref="ArgumentException">The source does not fit in the destination. - src</exception>
         protected void PadWindow(IList<double> src, IList<double> dst)
         {
             if (dst.Count < src.Count) throw new ArgumentException("The source does not fit in the destination.", nameof(src));

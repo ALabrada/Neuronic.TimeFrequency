@@ -8,10 +8,13 @@ using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency
 {
+    /// <summary>
+    /// Spectrogram using Short Time Fourier Transform (STFT).
+    /// </summary>
     public class Spectrogram: IBilinearTimeFrequencyRepresentation
     {
-        private Complex[,] _values;
-        private double[] _frequencies;
+        private readonly Complex[,] _values;
+        private readonly double[] _frequencies;
 
         internal Spectrogram(Complex[,] values, double[] frequencies, double startTime, double samplingPeriod)
         {
@@ -21,6 +24,17 @@ namespace Neuronic.TimeFrequency
             StartTime = startTime;
         }
 
+        /// <summary>
+        /// Estimates the Spectrogram of the specified signal using the STFT algorithm.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="winFunc">The window function. Default to hamming window.</param>
+        /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
+        /// <remarks>
+        /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static Spectrogram Estimate(IReadOnlySignal<double> signal, Func<int, double[]> winFunc = null, int? overlap = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
@@ -55,30 +69,78 @@ namespace Neuronic.TimeFrequency
             return new Spectrogram(values, frequencies, signal.Start + (window.Length / 2) * signal.SamplingPeriod, signal.SamplingPeriod * stride);
         }
 
+        /// <summary>
+        /// Estimates the Spectrogram of the specified signal using the STFT algorithm.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="window">The window. Default to hamming window.</param>
+        /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
+        /// <remarks>
+        /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static Spectrogram Estimate(IReadOnlySignal<double> signal, double[] window, int? overlap = null)
         {
             return Estimate(signal, _ => window, overlap);
         }
 
+        /// <summary>
+        /// Estimates the Spectrogram of the specified signal using the STFT algorithm.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="winFunc">The window function. Default to hamming window.</param>
+        /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
+        /// <remarks>
+        /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static Spectrogram Estimate(IReadOnlySignal<float> signal, Func<int, double[]> winFunc = null, int? overlap = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             return Estimate(signal.Map(x => (double) x), winFunc, overlap);
         }
 
+        /// <summary>
+        /// Estimates the Spectrogram of the specified signal using the STFT algorithm.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="window">The window. Default to hamming window.</param>
+        /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
+        /// <remarks>
+        /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
+        /// </remarks>
         public static Spectrogram Estimate(IReadOnlySignal<float> signal, double[] window, int? overlap = null)
         {
             return Estimate(signal, _ => window, overlap);
         }
 
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
         public double StartTime { get; }
 
+        /// <summary>
+        /// Gets the sampling period in the time domain.
+        /// </summary>
         public double SamplingPeriod { get; }
 
+        /// <summary>
+        /// Gets the amount of samples in the time domain.
+        /// </summary>
         public int SampleCount => _values.GetLength(0);
 
+        /// <summary>
+        /// Gets the amount of samples in the frequency domain.
+        /// </summary>
         public int FrequencyCount => _values.GetLength(1);
 
+        /// <summary>
+        /// Gets the computed frequencies.
+        /// </summary>
         public IEnumerable<double> Frequencies => _frequencies;
 
         double ITimeFrequencyRepresentation.this[int offset, double frequency] =>
@@ -87,13 +149,25 @@ namespace Neuronic.TimeFrequency
         double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] =>
             this[offset, frequencyIndex].SquaredMagnitude();
 
+        /// <summary>
+        /// Gets the spectrogram value for the specified offset and frequency.
+        /// </summary>
+        /// <param name="offset">The sample offset in time domain.</param>
+        /// <param name="freqIndex">The sample offset in the frequency domain.</param>
+        /// <returns>The time-frequency content.</returns>
         public Complex this[int offset, int freqIndex] => _values[offset, freqIndex];
 
-        public Complex this[double delay, double frequency]
+        /// <summary>
+        /// Gets the spectrogram value for the specified offset and frequency.
+        /// </summary>
+        /// <param name="time">The time.</param>
+        /// <param name="frequency">The frequency.</param>
+        /// <returns>The time-frequency content.</returns>
+        public Complex this[double time, double frequency]
         {
             get
             {
-                var offset = (int)Math.Round(delay / SamplingPeriod);
+                var offset = (int)Math.Round(time / SamplingPeriod);
                 var freqIndex = Array.BinarySearch(_frequencies, frequency);
                 if (freqIndex < 0)
                     freqIndex = ~freqIndex;
@@ -101,6 +175,12 @@ namespace Neuronic.TimeFrequency
             }
         }
 
+        /// <summary>
+        /// Gets the spectrogram value for the specified offset and frequency.
+        /// </summary>
+        /// <param name="offset">The sample offset in time domain.</param>
+        /// <param name="frequency">The frequency.</param>
+        /// <returns>The time-frequency content.</returns>
         public Complex this[int offset, double frequency]
         {
             get
