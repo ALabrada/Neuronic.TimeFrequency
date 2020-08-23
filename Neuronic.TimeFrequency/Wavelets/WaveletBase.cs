@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Accord.Math;
-using Accord.Math.Transforms;
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
@@ -53,7 +51,7 @@ namespace Neuronic.TimeFrequency.Wavelets
         /// <returns>The estimated central frequency.</returns>
         protected double EstimateCentralFrequency(Complex[] values, double samplingPeriod)
         {
-            FourierTransform2.FFT(values, Accord.Math.FourierTransform.Direction.Forward);
+            values.FFT();
             var maxIndex = 0;
             for (int i = 1; i < values.Length / 2; i++)
                 if (values[i].Magnitude > values[maxIndex].Magnitude)

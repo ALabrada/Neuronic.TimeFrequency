@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using Accord.Math;
+
 
 namespace Neuronic.TimeFrequency.Wavelets
 {

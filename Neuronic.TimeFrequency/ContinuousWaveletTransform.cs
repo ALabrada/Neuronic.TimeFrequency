@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Accord.Math;
-using Accord.Math.Transforms;
+using MathNet.Numerics;
 using Neuronic.TimeFrequency.Wavelets;
 
 namespace Neuronic.TimeFrequency
@@ -45,7 +44,7 @@ namespace Neuronic.TimeFrequency
             var yHat = new Complex[signal.Count];
             for (int offset = 0; offset < signal.Count; offset++)
                 yHat[offset] = signal[offset];
-            FourierTransform2.FFT(yHat, FourierTransform.Direction.Forward);
+            yHat.FFT();
 
             var t0 = -(signal.Count - 1 - 0.5 * signal.Count) * signal.SamplingPeriod;
             var oms = 2 * Math.PI / signal.SamplingPeriod;
@@ -59,7 +58,7 @@ namespace Neuronic.TimeFrequency
                 psi.Conjugate();
                 Array.Reverse(psiScale, 0, psiScale.Length);
 
-                FourierTransform2.FFT(psiScale, FourierTransform.Direction.Forward);
+                psiScale.FFT();
 
                 var factor = 1d / Complex.Sqrt(Math.Abs(scaleArray[scale]));                
                 for (int offset = 0; offset < signal.Count; offset++)
@@ -68,7 +67,7 @@ namespace Neuronic.TimeFrequency
                     psiScale[offset] = factor * trans * psiScale[offset] * yHat[offset];
                 }
 
-                FourierTransform2.FFT(psiScale, FourierTransform.Direction.Backward);
+                psiScale.IFFT();
 
                 for (int offset = 0; offset < signal.Count - 1; offset++)
                     values[offset, scale] = psiScale[offset + 1];
@@ -251,11 +250,11 @@ namespace Neuronic.TimeFrequency
                 var scaleIndex = Array.BinarySearch(_scales, scale);
                 if (scaleIndex < 0)
                     scaleIndex = ~scaleIndex;
-                return this[offset, scaleIndex].SquaredMagnitude();
+                return this[offset, scaleIndex].MagnitudeSquared();
             }
         }
 
-        double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] => this[offset, frequencyIndex].SquaredMagnitude();
+        double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] => this[offset, frequencyIndex].MagnitudeSquared();
 
         /// <summary>
         /// Gets the time-frequency content at the specified offset and scale.

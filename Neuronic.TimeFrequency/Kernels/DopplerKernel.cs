@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Accord.Math;
-using Accord.Math.Transforms;
+using MathNet.Numerics.Providers.FourierTransform;
 
 namespace Neuronic.TimeFrequency.Kernels
 {
@@ -75,18 +74,19 @@ namespace Neuronic.TimeFrequency.Kernels
         private int EvaluateInTimeDomain(int n, double[] output, int start)
         {
             var win = Window ?? throw new InvalidOperationException("No window selected.");
-            var re = output;
             ShiftAndPad(win, output, start, n);
 
-            var im = new double[n];
-            FourierTransform2.FFT(re, im, FourierTransform.Direction.Forward);
+            var buffer = new Complex[n];
+            output.Skip(start).Select(x => (Complex) x).CopyTo(buffer, 0);
 
-            var win0 = new Complex(re[0], im[0]);
-            re[0] = 1;
-            for (int i = 1; i < re.Length; i++)
+            buffer.FFT();
+
+            var win0 = buffer[0];
+            output[start] = 1;
+            for (int i = 1; i < buffer.Length; i++)
             {
-                var c = new Complex(re[i], im[i]);
-                re[i] = (c / win0).Real;
+                var c = buffer[i];
+                output[start + i] = (c / win0).Real;
             }
 
             return n;

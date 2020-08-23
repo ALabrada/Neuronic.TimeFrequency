@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using Accord.Math;
+using MathNet.Numerics.Interpolation;
+
 
 namespace Neuronic.TimeFrequency.Wavelets
 {
@@ -296,22 +297,12 @@ namespace Neuronic.TimeFrequency.Wavelets
             var count = result.Count;
             var step = result.SamplingPeriod;
             var min = result.Start;
+            var interpolator = StepInterpolation.InterpolateSorted(x, y);
 
             for (int i = 0; i < count; i++)
             {
                 var t = min + i * step;
-                result[i] = Tools.Interpolate1D(t, x, y, 0, 0);
-                //var index = Array.BinarySearch(x, t);
-                //if (index >= 0)
-                //    result[i + start] = y[index];
-                //else
-                //{
-                //    index = ~index;
-                //    if (index == 0 || index == x.Length)
-                //        result[i] = 0d;
-                //    else
-                //        result[i] = y[index - 1];
-                //}
+                result[i] = t >= x[0] && t <= x[x.Length - 1] ? interpolator.Interpolate(t) : 0d;
             }
         }
 
@@ -327,22 +318,12 @@ namespace Neuronic.TimeFrequency.Wavelets
             var count = result.Count;
             var step = result.SamplingPeriod;
             var min = result.Start;
+            var interpolator = StepInterpolation.InterpolateSorted(x, y);
 
             for (int i = 0; i < count; i++)
             {
                 var t = min + i * step;
-                result[i] = Tools.Interpolate1D(t, x, y, 0, 0);
-                //var index = Array.BinarySearch(x, t);
-                //if (index >= 0)
-                //    result[i + start] = y[index];
-                //else
-                //{
-                //    index = ~index;
-                //    if (index == 0 || index == x.Length)
-                //        result[i] = 0d;
-                //    else
-                //        result[i] = y[index - 1];
-                //}
+                result[i] = t >= x[0] && t <= x[x.Length - 1] ? interpolator.Interpolate(t) : 0d;
             }
         }
     }

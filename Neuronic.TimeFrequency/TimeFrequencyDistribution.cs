@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using Accord.Math;
-using Accord.Math.Transforms;
 using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency
@@ -79,12 +77,12 @@ namespace Neuronic.TimeFrequency
             {
                 var column = kTrans[j];
                 // fft
-                FourierTransform2.FFT(column, FourierTransform.Direction.Forward);
+                column.FFT();
                 // conv
                 for (int i = 0; i < n; i++)
                     column[i] *= kernel[i, j];
                 // ifft
-                FourierTransform2.FFT(column, FourierTransform.Direction.Backward);
+                column.IFFT();
             }
 
             for (int i = 0; i < n; i++)
@@ -104,7 +102,7 @@ namespace Neuronic.TimeFrequency
             {
                 for (int j = 0; j < freq; j++)
                     buffer[j] = kTrans[2 * j][i];
-                FourierTransform2.FFT(buffer, FourierTransform.Direction.Forward);
+                buffer.FFT();
                 for (int j = 0; j < freq; j++)
                     tfd[2 * i, j] = (buffer[j] / time).Real;
             }
@@ -122,9 +120,9 @@ namespace Neuronic.TimeFrequency
                     buffer[k] = (buffer[k] - Complex.Conjugate(buffer[freq - k])) / new Complex(0, 2);
                 for (int ke = nFreq + 1; ke < freq; ke++)
                     buffer[ke] = Complex.Conjugate(buffer[freq - ke]);
-                
 
-                FourierTransform2.FFT(buffer, FourierTransform.Direction.Forward);
+
+                buffer.FFT();
 
                 for (int j = 1; j < freq; j++)
                 {

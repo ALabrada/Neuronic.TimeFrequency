@@ -1,4 +1,4 @@
-﻿using Accord.Math;
+﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,15 +6,42 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Accord.Math.Transforms;
+using MathNet.Numerics.Providers.FourierTransform;
 
 namespace Neuronic.TimeFrequency
 {
     static class SignalExtensions
     {
-        public static Signal<Complex> ToComplex(this Signal<double> signal)
+        public static int PrevPowerOf2(this int value)
         {
-            return new Signal<Complex>(signal.Samples.ToComplex(), signal.Start, signal.SamplingRate);
+            if (value < 0)
+                return -PrevPowerOf2(value);
+            if (value <= 1)
+                return value;
+            return PrevPowerOf2(value >> 1) << 1;
+        }
+
+        public static int NextPowerOf2(this int value)
+        {
+            if (value < 0)
+                return -NextPowerOf2(value);
+            var prev = PrevPowerOf2(value);
+            return prev != value ? prev << 1 : prev;
+        }
+
+        public static Complex[] ToComplex(this double[] signal)
+        {
+            var values = new Complex[signal.Length];
+            signal.Select(x => (Complex) x).CopyTo(values, 0);
+            return values;
+        }
+
+        public static T[] Reversed<T>(this ICollection<T> items)
+        {
+            var values = new T[items.Count];
+            items.CopyTo(values, 0);
+            Array.Reverse(values);
+            return values;
         }
 
         public static void Integrate(this Signal<Complex> x)
@@ -90,16 +117,26 @@ namespace Neuronic.TimeFrequency
             }
         }
 
+        public static void FFT(this Complex[] signal)
+        {
+            FourierTransformControl.Provider.Forward(signal, FourierTransformScaling.NoScaling);
+        }
+
+        public static void IFFT(this Complex[] signal)
+        {
+            FourierTransformControl.Provider.Backward(signal, FourierTransformScaling.BackwardScaling);
+        }
+
         public static void HilbertTransform(this Signal<Complex> signal)
         {
             var n = signal.Count;
-            FourierTransform2.FFT(signal.Samples, FourierTransform.Direction.Forward);
+            signal.Samples.FFT();
 
             for (int i = 1; i < n / 2; i++)
                 signal[i] *= 2d;
             Array.Clear(signal.Samples, n / 2 + 1, n - n / 2 - 1);
 
-            FourierTransform2.FFT(signal.Samples, FourierTransform.Direction.Backward);
+            signal.Samples.IFFT();
         }
 
         public static void Unwrap(this Signal<double> signal, double tolerance = Math.PI)

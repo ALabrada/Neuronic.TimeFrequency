@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Accord.Math;
-using Accord.Math.Transforms;
+using MathNet.Numerics;
 using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency
@@ -43,7 +42,7 @@ namespace Neuronic.TimeFrequency
             var sampCount = (signal.Count + stride - window.Length) / stride;
 
             var wFreq = 2 * Math.PI / signal.SamplingPeriod;
-            var nfft = Math.Max(256, Tools.NextPowerOf2(window.Length));
+            var nfft = Math.Max(256, window.Length.NextPowerOf2());
             var freqCount = nfft / 2 + 1;
             var frequencies = new double[freqCount];
             for (int i = 0; i < freqCount; i++)
@@ -58,7 +57,7 @@ namespace Neuronic.TimeFrequency
                     if (k < signal.Count)
                         windowed[i] = window[i] * signal[k];
 
-                FourierTransform2.FFT(windowed, FourierTransform.Direction.Forward);
+                windowed.FFT();
 
                 for (int i = 0; i < freqCount; i++)
                     values[offset, i] = windowed[i];
@@ -144,10 +143,10 @@ namespace Neuronic.TimeFrequency
         public IEnumerable<double> Frequencies => _frequencies;
 
         double ITimeFrequencyRepresentation.this[int offset, double frequency] =>
-            this[offset, frequency].SquaredMagnitude();
+            this[offset, frequency].MagnitudeSquared();
 
         double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] =>
-            this[offset, frequencyIndex].SquaredMagnitude();
+            this[offset, frequencyIndex].MagnitudeSquared();
 
         /// <summary>
         /// Gets the spectrogram value for the specified offset and frequency.

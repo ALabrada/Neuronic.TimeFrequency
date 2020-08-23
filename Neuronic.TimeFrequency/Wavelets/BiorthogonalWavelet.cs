@@ -1,4 +1,4 @@
-﻿using Accord.Math;
+﻿
 using System;
 
 namespace Neuronic.TimeFrequency.Wavelets

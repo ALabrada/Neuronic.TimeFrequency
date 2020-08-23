@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using Accord;
-using Accord.Diagnostics;
-using Accord.Math;
+
 using MathNet.Numerics;
 using MathNet.Numerics.Differentiation;
 using MathNet.Numerics.Interpolation;
@@ -398,6 +397,18 @@ namespace Neuronic.TimeFrequency
             }
 
             return new SpectralAnalysis(components, SamplingPeriod, z.Count);
+        }
+
+        private struct DoublePoint
+        {
+            public DoublePoint(double x, double y)
+            {
+                X = x;
+                Y = y;
+            }
+
+            public double X;
+            public double Y;
         }
 
         /// <summary>
