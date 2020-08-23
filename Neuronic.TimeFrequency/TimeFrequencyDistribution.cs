@@ -213,7 +213,7 @@ namespace Neuronic.TimeFrequency
         public IEnumerable<double> Frequencies => Array.AsReadOnly(_frequencies);
 
         double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] =>
-            this[offset, frequencyIndex].SquaredMagnitude();
+            this[offset, frequencyIndex];
 
         /// <summary>
         /// Gets the TFD value for the specified frequency and offset.
@@ -221,7 +221,7 @@ namespace Neuronic.TimeFrequency
         /// <param name="offset">The offset.</param>
         /// <param name="freqIndex">The frequency index.</param>
         /// <returns>The TFD value.</returns>
-        public Complex this[int offset, int freqIndex] => _values[offset, freqIndex];
+        public double this[int offset, int freqIndex] => _values[offset, freqIndex];
 
         double ITimeFrequencyRepresentation.this[int offset, double frequency]
         {
@@ -230,7 +230,7 @@ namespace Neuronic.TimeFrequency
                 var freqIndex = Array.BinarySearch(_frequencies, frequency);
                 if (freqIndex < 0)
                     freqIndex = ~freqIndex;
-                return this[offset, freqIndex].SquaredMagnitude();
+                return this[offset, freqIndex];
             }
         }
 
@@ -248,7 +248,7 @@ namespace Neuronic.TimeFrequency
                 var freqIndex = Array.BinarySearch(_frequencies, frequency);
                 if (freqIndex < 0)
                     freqIndex = ~freqIndex;
-                return this[offset, freqIndex].Magnitude;
+                return this[offset, freqIndex];
             }
         }
 

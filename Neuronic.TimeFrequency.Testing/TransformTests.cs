@@ -14,6 +14,38 @@ namespace Neuronic.TimeFrequency.Testing
     public class TransformTests
     {
         [TestMethod]
+        [DataRow("gauss", 11, 0, "spectrogram_gauss11_noover", DisplayName = "Gabor transform length=11, no overlap")]
+        [DataRow("gauss", 11, 10, "spectrogram_gauss11_over10", DisplayName = "Gabor transform length=11, stride 1")]
+        [DataRow("hamming", 255, 0, "spectrogram_hamm255_noover", DisplayName = "STFT with hamming window length=255, no overlap")]
+        [DataRow("bartlett", 125, 62, "spectrogram_bart125_over62", DisplayName = "STFT with bartlett window length=125, 50% overlap")]
+        public void TestShortTimeFourierTransform(string winName, int winLength, int overlap, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            float[] samples;
+            var expectedValues = new List<Complex[]>();
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    expectedValues.Add(Tools.ReadComplexNumbersFrom(line).ToArray());
+            }
+
+            var window = Tools.CreateWindow(winName).Evaluate(winLength);
+            var spectrogram = Spectrogram.Estimate(new Signal<float>(samples), window, overlap);
+
+            Assert.AreEqual(expectedValues.Count, spectrogram.FrequencyCount);
+            var actualValues = new List<Complex>(samples.Length);
+            for (int i = 0; i < expectedValues.Count; i++)
+            {
+                actualValues.Clear();
+                actualValues.AddRange(spectrogram.EnumerateFrequency(i));
+                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
+            }
+        }
+
+        [TestMethod]
         [DataRow("morl", "mycwt_morl", DisplayName = "Morlet")]
         [DataRow("mexh", "mycwt_mexh", DisplayName = "Mexican Hat")]
         [DataRow("gaus1", "mycwt_gaus1", DisplayName = "Gaussian order 1")]

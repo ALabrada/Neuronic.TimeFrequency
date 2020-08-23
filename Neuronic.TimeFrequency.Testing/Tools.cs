@@ -42,8 +42,10 @@ namespace Neuronic.TimeFrequency.Testing
                 var match = regex.Match(part);
                 if (!match.Success)
                     continue;
-                if (float.TryParse(match.Groups["re"]?.Value ?? "0", NumberStyles.Any, CultureInfo.InvariantCulture, out var re) &&
-                    float.TryParse(match.Groups["im"]?.Value ?? "0", NumberStyles.Any, CultureInfo.InvariantCulture, out var im))
+                var reStr = match.Groups["re"]?.Value;
+                var imStr = match.Groups["im"]?.Value;
+                if (float.TryParse(string.IsNullOrEmpty(reStr) ? "0" : reStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var re) &&
+                    float.TryParse(string.IsNullOrEmpty(imStr) ? "0" : imStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var im))
                     yield return new Complex(re, im);
             }
         }
@@ -82,6 +84,7 @@ namespace Neuronic.TimeFrequency.Testing
                 case "hann":
                 case "hanning":
                     return Windows.Hanning;
+                case "gausswin":
                 case "gauss":
                     return Windows.Gaussian();
                 default:
