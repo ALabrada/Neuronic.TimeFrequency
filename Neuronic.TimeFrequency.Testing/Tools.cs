@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using MathNet.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Kernels;
 
@@ -67,26 +68,36 @@ namespace Neuronic.TimeFrequency.Testing
             Assert.AreEqual(0, relDif, delta);
         }
 
-        public static WindowFunction CreateWindow(string name)
+        public static Func<int, double[]> CreateWindow(string name)
         {
             switch (name.ToLowerInvariant())
             {
                 case "delta":
-                    return Windows.Delta;
+                    return i =>
+                    {
+                        var x = new double[i];
+                        x[i / 2] = 1;
+                        return x;
+                    };
                 case "rect":
-                    return Windows.Rectangular;
+                    return i => Enumerable.Repeat(1d, i).ToArray();
                 case "bart":
                 case "bartlett":
-                    return Windows.Bartlett;
+                    return Window.Bartlett;
                 case "hamm":
                 case "hamming":
-                    return Windows.Hamming;
+                    return Window.Hamming;
                 case "hann":
                 case "hanning":
-                    return Windows.Hanning;
+                    return i =>
+                    {
+                        var x = new double[i];
+                        Array.Copy(Window.Hann(i + 2), 1, x, 0, i);
+                        return x;
+                    };
                 case "gausswin":
                 case "gauss":
-                    return Windows.Gaussian();
+                    return i => Window.Gauss(i, 1d/2.5);
                 default:
                     return null;
             }

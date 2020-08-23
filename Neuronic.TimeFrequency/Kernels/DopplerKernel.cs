@@ -15,6 +15,7 @@ namespace Neuronic.TimeFrequency.Kernels
         /// <summary>
         /// Gets or sets the window function samples.
         /// </summary>
+        /// <seealso cref="MathNet.Numerics.Window"/>
         public double[] Window { get; set; }
 
         /// <summary>

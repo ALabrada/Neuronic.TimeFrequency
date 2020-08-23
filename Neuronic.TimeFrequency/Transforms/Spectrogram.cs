@@ -34,10 +34,11 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks>
+        /// <seealso cref="Window"/>
         public static Spectrogram Estimate(IReadOnlySignal<double> signal, Func<int, double[]> winFunc = null, int? overlap = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
-            var window = winFunc?.Invoke(signal.Count) ?? Windows.Hamming.Evaluate(signal.Count);
+            var window = winFunc?.Invoke(signal.Count) ?? Window.Hamming(signal.Count);
             var stride = Math.Max(1, window.Length - (overlap ?? window.Length / 2));
             var sampCount = (signal.Count + stride - window.Length) / stride;
 
@@ -78,7 +79,8 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
-        /// </remarks>
+        /// </remarks> 
+        /// <seealso cref="Window"/>
         public static Spectrogram Estimate(IReadOnlySignal<double> signal, double[] window, int? overlap = null)
         {
             return Estimate(signal, _ => window, overlap);
@@ -94,7 +96,8 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
-        /// </remarks>
+        /// </remarks> 
+        /// <seealso cref="Window"/>
         public static Spectrogram Estimate(IReadOnlySignal<float> signal, Func<int, double[]> winFunc = null, int? overlap = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
@@ -112,6 +115,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks>
+        /// <seealso cref="Window"/>
         public static Spectrogram Estimate(IReadOnlySignal<float> signal, double[] window, int? overlap = null)
         {
             return Estimate(signal, _ => window, overlap);

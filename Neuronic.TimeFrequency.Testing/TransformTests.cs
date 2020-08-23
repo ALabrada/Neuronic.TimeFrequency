@@ -17,7 +17,7 @@ namespace Neuronic.TimeFrequency.Testing
         [TestMethod]
         [DataRow("gauss", 11, 0, "spectrogram_gauss11_noover", DisplayName = "Gabor transform length=11, no overlap")]
         [DataRow("gauss", 11, 10, "spectrogram_gauss11_over10", DisplayName = "Gabor transform length=11, stride 1")]
-        [DataRow("hamming", 255, 0, "spectrogram_hamm255_noover", DisplayName = "STFT with hamming window length=255, no overlap")]
+        [DataRow("hanning", 255, 0, "spectrogram_hann255_noover", DisplayName = "STFT with hanning window length=255, no overlap")]
         [DataRow("bartlett", 125, 62, "spectrogram_bart125_over62", DisplayName = "STFT with bartlett window length=125, 50% overlap")]
         public void TestShortTimeFourierTransform(string winName, int winLength, int overlap, string valueList)
         {
@@ -33,7 +33,7 @@ namespace Neuronic.TimeFrequency.Testing
                     expectedValues.Add(Tools.ReadComplexNumbersFrom(line).ToArray());
             }
 
-            var window = Tools.CreateWindow(winName).Evaluate(winLength);
+            var window = Tools.CreateWindow(winName).Invoke(winLength);
             var spectrogram = Spectrogram.Estimate(new Signal<float>(samples), window, overlap);
 
             Assert.AreEqual(expectedValues.Count, spectrogram.FrequencyCount);
