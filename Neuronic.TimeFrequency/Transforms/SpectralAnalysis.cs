@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Storage;
 
 namespace Neuronic.TimeFrequency.Transforms
 {
@@ -74,8 +77,9 @@ namespace Neuronic.TimeFrequency.Transforms
         /// Calculates the spectrogram of the signal by sampling the component signals in the frequency domain.
         /// </summary>
         /// <param name="spectralResolution">The desired spectral resolution.</param>
+        /// <param name="smoothingKernel">The smoothing kernel to apply to the spectrogram. <c>null</c> to disable smoothing.</param>
         /// <returns>The spectrogram.</returns>
-        public IBilinearTimeFrequencyRepresentation GetSpectrogram(double spectralResolution = 0)
+        public IBilinearTimeFrequencyRepresentation GetSpectrogram(double spectralResolution = 0, double[] smoothingKernel = null)
         {
             if (spectralResolution <= 0)
                 spectralResolution = 1d / (SampleCount * SamplingPeriod);
@@ -99,6 +103,22 @@ namespace Neuronic.TimeFrequency.Transforms
                         if (j < frequencies.Length)
                             amplitudes[offset, j] += component.Amplitude[offset];
                     }
+                }
+            }
+
+            // Smoothing
+            if (smoothingKernel != null && smoothingKernel.Length > 1)
+            {
+                var buffer = new double[frequencies.Length];
+                var sum = 1d / smoothingKernel.Sum();
+                for (int i = 0; i < smoothingKernel.Length; i++)
+                    smoothingKernel[i] *= sum; 
+                for (int offset = 0; offset < SampleCount; offset++)
+                {
+                    new RowVector<double>(amplitudes, offset).Convolve(smoothingKernel, buffer);
+                    Buffer.BlockCopy(buffer, 0,
+                        amplitudes, sizeof(double) * offset * buffer.Length,
+                        sizeof(double) * buffer.Length);
                 }
             }
 
