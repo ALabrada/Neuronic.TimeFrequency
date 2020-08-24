@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using MathNet.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Kernels;
 using Neuronic.TimeFrequency.Testing.Properties;
@@ -230,6 +231,48 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < expectedValues.Count; i++)
             {
                 Tools.AssertAreEqual(expectedValues[i], hht[i].Frequency, 1e-4 * (2 << i));
+            }
+        }
+
+        [TestMethod]
+        [DataRow(10d, "HHT_128", DisplayName = "HHT 128 samples with default parameters.")]
+        public void TestHilbertHuangTransformConversionToSpectrogram(double fs, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            valueList = resources.GetString(valueList) ?? valueList;
+            float[] samples;
+            using (var reader = new StringReader(valueList))
+            {
+                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
+            }
+
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples, fs: fs));
+            var hht = emd.HilbertSpectralAnalysis();
+            var spectrogram = hht.GetSpectrogram();
+
+            for (int i = 0; i < hht.SampleCount; i++)
+            {
+                var randomValues = new List<int>(10);
+                randomValues.AddRange(Generate.UniformSequence().Take(10).Select(j => (int)(j * (spectrogram.FrequencyCount - 1))).Distinct());
+
+                foreach (var component in hht)
+                {
+                    if (i - component.FrequencyOffset >= 0 && i - component.FrequencyOffset < component.Frequency.Count)
+                    {
+                        var frequency = component.Frequency[i - component.FrequencyOffset];
+                        var freqIndex = spectrogram.Frequencies.Select(f => Math.Abs(f - frequency)).ArgMin();
+                        randomValues.Remove(freqIndex);
+                        randomValues.Remove(freqIndex - 1);
+                        randomValues.Remove(freqIndex + 1);
+
+                        var expectedValue = component.Amplitude[i];
+                        var actualValue = spectrogram[i, freqIndex];
+                        Assert.IsTrue(actualValue >= expectedValue);
+                    }
+                }
+
+                foreach (var freqIndex in randomValues)
+                    Assert.AreEqual(0, spectrogram[i, freqIndex]);
             }
         }
     }

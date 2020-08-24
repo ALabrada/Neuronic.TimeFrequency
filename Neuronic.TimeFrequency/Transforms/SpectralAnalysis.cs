@@ -81,7 +81,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 spectralResolution = 1d / (SampleCount * SamplingPeriod);
 
             var maxFrequency = 0.5 / SamplingPeriod;
-            var frequencies = new double[(int) Math.Ceiling(maxFrequency / spectralResolution)];
+            var frequencies = new double[(int) Math.Floor(maxFrequency / spectralResolution) + 1];
             for (int i = 0; i < frequencies.Length; i++)
                 frequencies[i] = i * spectralResolution;
 
@@ -95,7 +95,8 @@ namespace Neuronic.TimeFrequency.Transforms
                     {
                         var frequency = component.Frequency[freqIndex];
                         var j = (int) Math.Round(frequency / spectralResolution);
-                        if (j >= 0 && j < frequencies.Length)
+                        j = Math.Max(j, 0);
+                        if (j < frequencies.Length)
                             amplitudes[offset, j] += component.Amplitude[offset];
                     }
                 }

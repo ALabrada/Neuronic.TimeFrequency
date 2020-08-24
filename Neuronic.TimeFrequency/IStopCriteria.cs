@@ -4,7 +4,7 @@
     /// Abstraction of a stop criteria for an iterative algorithm.
     /// </summary>
     /// <typeparam name="T">The type of the algorithm's state.</typeparam>
-    public interface IStopCriteria<T>
+    public interface IStopCriteria<in T>
     {
         /// <summary>
         /// Determines if the algorithm should stop iterating.
