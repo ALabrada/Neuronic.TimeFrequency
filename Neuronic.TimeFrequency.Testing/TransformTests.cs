@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Accord.IO;
 using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Kernels;
 using Neuronic.TimeFrequency.Testing.Properties;
@@ -158,28 +160,22 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestChoiWilliamsTimeFrequencyDistribution(double sigma, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            var expectedValues = new List<double[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).ToArray());
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("x"));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("c"));
 
             var kernel = new ChoiWilliamsDistribution {Sigma = sigma};
-            var tfd = TimeFrequencyDistribution.Estimate(new Signal<float>(samples, fs: 10d), kernel);
+            var tfd = TimeFrequencyDistribution.Estimate(new Signal<double>(samples.Row(0).ToArray(), fs: 10d), kernel);
 
-            Assert.AreEqual(expectedValues.Count, tfd.SampleCount);
-            Assert.AreEqual(tfd.FrequencyCount, samples.Length);
-            var actualValues = new List<double>(samples.Length);
-            for (int i = 0; i < expectedValues.Count; i++)
+            Assert.AreEqual(expectedValues.ColumnCount, tfd.FrequencyCount);
+            Assert.AreEqual(expectedValues.RowCount, tfd.SampleCount);
+            var actualValues = new List<double>(samples.ColumnCount);
+            for (int i = 0; i < expectedValues.RowCount; i++)
             {
                 actualValues.Clear();
                 actualValues.AddRange(tfd.EnumerateValuesOfTimeAt(i));
-                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-5);
+
+                Assert.IsTrue(expectedValues.Row(i).ListAlmostEqual(actualValues, 1e-5));
             }
         }
 
@@ -188,23 +184,18 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestEmpiricalModeDecomposition(string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            var expectedValues = new List<double[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).ToArray());
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("s"));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("IMF"));
 
-            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples));
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<double>(samples.Row(0).ToArray()));
 
-            Assert.AreEqual(expectedValues.Count, emd.Count);
-            for (int i = 0; i < expectedValues.Count; i++)
+            Assert.AreEqual(expectedValues.ColumnCount, emd.Count);
+            for (int i = 0; i < emd.Count; i++)
             {
-                Tools.AssertAreEqual(expectedValues[i], emd[i], 1e-4*(1<<i));
+                var expected = expectedValues.Column(i);
+                var actual = emd[i].ToList();
+                Assert.IsTrue(expected.ListAlmostEqual(actual, 1e-4 * (1 << i)));
             }
         }
 
@@ -213,24 +204,19 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestHilbertHuangTransform(double fs, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            var expectedValues = new List<double[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (double)x).Take(samples.Length - 1).ToArray());
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("s"));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("F"));
 
-            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples, fs: fs));
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<double>(samples.Row(0).ToArray(), fs: fs));
             var hht = emd.HilbertSpectralAnalysis();
 
-            Assert.AreEqual(expectedValues.Count, hht.Count);
-            for (int i = 0; i < expectedValues.Count; i++)
+            Assert.AreEqual(expectedValues.ColumnCount, emd.Count);
+            for (int i = 0; i < emd.Count; i++)
             {
-                Tools.AssertAreEqual(expectedValues[i], hht[i].Frequency, 1e-4 * (2 << i));
+                var expected = expectedValues.Column(i);
+                var actual = hht[i].Frequency.ToList();
+                Assert.IsTrue(expected.ListAlmostEqual(actual, 1e-4 * (2 << i)));
             }
         }
 
@@ -239,14 +225,10 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestHilbertHuangTransformConversionToSpectrogram(double fs, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("s"));
 
-            var emd = EmpiricalModeDecomposition.Estimate(new Signal<float>(samples, fs: fs));
+            var emd = EmpiricalModeDecomposition.Estimate(new Signal<double>(samples.Row(0).ToArray(), fs: fs));
             var hht = emd.HilbertSpectralAnalysis();
             var spectrogram = hht.GetSpectrogram();
 
