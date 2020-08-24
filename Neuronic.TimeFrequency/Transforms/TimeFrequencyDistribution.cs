@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Neuronic.TimeFrequency.Kernels;
 
 namespace Neuronic.TimeFrequency.Transforms
@@ -69,12 +70,12 @@ namespace Neuronic.TimeFrequency.Transforms
             return kTrans;
         }
 
-        private static void Convolve(int n, int n2, List<Complex[]> kTrans, double[,] kernel)
+        private static void Convolve(int n, int n2, List<Complex[]> kTrans, double[,] kernel, ParallelOptions options)
         {
             while (kTrans.Count < 2 * n)
                 kTrans.Add(new Complex[n]);
 
-            for (int j = 0; j < n + 1; j++)
+            Parallel.For(0, n + 1, options, j =>
             {
                 var column = kTrans[j];
                 // fft
@@ -84,7 +85,7 @@ namespace Neuronic.TimeFrequency.Transforms
                     column[i] *= kernel[i, j];
                 // ifft
                 column.IFFT();
-            }
+            });
 
             for (int i = 0; i < n; i++)
             {
@@ -95,45 +96,51 @@ namespace Neuronic.TimeFrequency.Transforms
             }
         }
 
-        private static double[,] ToTFDomain(int freq, int time, List<Complex[]> kTrans)
+        private static double[,] ToTFDomain(int freq, int time, List<Complex[]> kTrans, ParallelOptions options)
         {
             var tfd = new double[time, freq];
-            var buffer = new Complex[freq];
-            for (int i = 0; i < freq; i++)
-            {
-                for (int j = 0; j < freq; j++)
-                    buffer[j] = kTrans[2 * j][i];
-                buffer.FFT();
-                for (int j = 0; j < freq; j++)
-                    tfd[2 * i, j] = (buffer[j] / time).Real;
-            }
 
-            for (int i = 0; i < freq; i++)
-            {
-                for (int j = 0; j < freq; j++)
-                    buffer[j] = kTrans[2 * j + 1][i];
-
-                tfd[2 * i + 1, 0] = (Enumerable.Range(0, freq).Aggregate(Complex.Zero, (total, j) => total + buffer[j]) / time).Real;
-
-                var nFreq = (freq + 1) / 2;
-                buffer[0] = buffer[0].Imaginary;
-                for (int k = 1; k <= nFreq; k++)
-                    buffer[k] = (buffer[k] - Complex.Conjugate(buffer[freq - k])) / new Complex(0, 2);
-                for (int ke = nFreq + 1; ke < freq; ke++)
-                    buffer[ke] = Complex.Conjugate(buffer[freq - ke]);
-
-
-                buffer.FFT();
-
-                for (int j = 1; j < freq; j++)
+            Parallel.For(0, freq, options,
+                () => new {buffer = new Complex[freq]},
+                (i, _, state) =>
                 {
-                    var a = Math.Cos((Math.PI / freq) * j);
-                    var b = Math.Sin((Math.PI / freq) * j);
-                    var c = (a * a + b * b) / b;
+                    var buffer = state.buffer;
 
-                    tfd[2 * i + 1, j] = (buffer[j] * c / time).Real;
-                }
-            }
+                    // Even rows
+                    for (int j = 0; j < freq; j++)
+                        buffer[j] = kTrans[2 * j][i];
+                    buffer.FFT();
+                    for (int j = 0; j < freq; j++)
+                        tfd[2 * i, j] = (buffer[j] / time).Real;
+
+                    for (int j = 0; j < freq; j++)
+                        buffer[j] = kTrans[2 * j + 1][i];
+
+                    // Odd rows
+                    tfd[2 * i + 1, 0] = (Enumerable.Range(0, freq).Aggregate(Complex.Zero, (total, j) => total + buffer[j]) / time).Real;
+
+                    var nFreq = (freq + 1) / 2;
+                    buffer[0] = buffer[0].Imaginary;
+                    for (int k = 1; k <= nFreq; k++)
+                        buffer[k] = (buffer[k] - Complex.Conjugate(buffer[freq - k])) / new Complex(0, 2);
+                    for (int ke = nFreq + 1; ke < freq; ke++)
+                        buffer[ke] = Complex.Conjugate(buffer[freq - ke]);
+
+
+                    buffer.FFT();
+
+                    for (int j = 1; j < freq; j++)
+                    {
+                        var a = Math.Cos((Math.PI / freq) * j);
+                        var b = Math.Sin((Math.PI / freq) * j);
+                        var c = (a * a + b * b) / b;
+
+                        tfd[2 * i + 1, j] = (buffer[j] * c / time).Real;
+                    }
+
+                    return state;
+                },
+                _ => { });
 
             return tfd;
         }
@@ -143,6 +150,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </summary>
         /// <param name="signal">The signal.</param>
         /// <param name="kernel">The kernel.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The estimated TFD.</returns>
         /// <exception cref="ArgumentNullException">Thrown when either the signal or the kernel are <c>null</c>.</exception>
         /// <remarks>
@@ -150,10 +158,11 @@ namespace Neuronic.TimeFrequency.Transforms
         /// "Fast and memory-efficient algorithms for computing quadratic time–frequency distributions",
         /// Applied and Computational Harmonic Analysis, vol. 35, no. 2, pp. 350–358, 2013.
         /// </remarks>
-        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<double> signal, DopplerLagKernel kernel)
+        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<double> signal, DopplerLagKernel kernel, ParallelOptions options = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             if (kernel == null) throw new ArgumentNullException(nameof(kernel));
+            options = options ?? new ParallelOptions();
 
             var z = GetAnalytic(signal);
             var n2 = z.Length;
@@ -163,21 +172,22 @@ namespace Neuronic.TimeFrequency.Transforms
             
             var kTrans = GetTL(n, n2, z);
 
-            Convolve(n, n2, kTrans, g);
+            Convolve(n, n2, kTrans, g, options);
 
-            var tfd = ToTFDomain(n, n2, kTrans);
+            var tfd = ToTFDomain(n, n2, kTrans, options);
 
             var frequencies = new double[tfd.GetLength(1)];
             for (int i = 0; i < frequencies.Length; i++)
                 frequencies[i] = (i * 0.5 * signal.SamplingRate) / (frequencies.Length - 1);
             return new TimeFrequencyDistribution(tfd, frequencies, signal.Start, signal.SamplingPeriod / 2);
         }
-        
+
         /// <summary>
         /// Estimates the TFD of the specified signal.
         /// </summary>
         /// <param name="signal">The signal.</param>
         /// <param name="kernel">The kernel.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The estimated TFD.</returns>
         /// <exception cref="ArgumentNullException">Thrown when either the signal or the kernel are <c>null</c>.</exception>
         /// <remarks>
@@ -185,10 +195,10 @@ namespace Neuronic.TimeFrequency.Transforms
         /// "Fast and memory-efficient algorithms for computing quadratic time–frequency distributions",
         /// Applied and Computational Harmonic Analysis, vol. 35, no. 2, pp. 350–358, 2013.
         /// </remarks>
-        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<float> signal, DopplerLagKernel kernel)
+        public static TimeFrequencyDistribution Estimate(IReadOnlySignal<float> signal, DopplerLagKernel kernel, ParallelOptions options = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
-            return Estimate(signal.Map(x => (double) x), kernel);
+            return Estimate(signal.Map(x => (double) x), kernel, options);
         }
 
         /// <summary>

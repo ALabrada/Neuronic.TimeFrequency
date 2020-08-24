@@ -23,6 +23,7 @@ namespace Neuronic.TimeFrequency.Wavelets
         private readonly double[] _highReconstructionFilter;
         private readonly double[] _lowDecompositionFilter;
         private readonly double[] _highDecompositionFilter;
+        private readonly object _psiLock = new object();
         private Signal<double>? _psi;
         private double[] _x;
 
@@ -255,24 +256,27 @@ namespace Neuronic.TimeFrequency.Wavelets
         /// </returns>
         protected virtual Signal<double> ProtectedEvaluate()
         {
-            if (_psi.HasValue)
-                return _psi.Value;
-
-            var p = 1 << PrecisionLevel;
-
-            var keepLength = Enumerable.Range(0, PrecisionLevel).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
-
-            var psi = Upcoef(PrecisionLevel);
-            var offset = 0;
-            if (psi.Length > keepLength)
+            lock (_psiLock)
             {
-                offset = (psi.Length - keepLength) / 2;
-                Array.Clear(psi, 0, offset);
-                Array.Clear(psi, offset + keepLength, psi.Length - offset - keepLength);
-            }
+                if (_psi.HasValue)
+                    return _psi.Value;
 
-            _psi = new Signal<double>(psi, (double) (offset + 1) / p, p);
-            return _psi.Value;
+                var p = 1 << PrecisionLevel;
+
+                var keepLength = Enumerable.Range(0, PrecisionLevel).Aggregate(1, (total, _) => 2 * total + (FilterLength - 2));
+
+                var psi = Upcoef(PrecisionLevel);
+                var offset = 0;
+                if (psi.Length > keepLength)
+                {
+                    offset = (psi.Length - keepLength) / 2;
+                    Array.Clear(psi, 0, offset);
+                    Array.Clear(psi, offset + keepLength, psi.Length - offset - keepLength);
+                }
+
+                _psi = new Signal<double>(psi, (double)(offset + 1) / p, p);
+                return _psi.Value; 
+            }
         }
 
         private double[] EvaluateTimeFor<T>(Signal<T> signal)

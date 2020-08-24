@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using MathNet.Numerics;
 using Neuronic.TimeFrequency.Kernels;
 
@@ -29,15 +30,18 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="winFunc">The window function. Default to hamming window.</param>
         /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks>
         /// <seealso cref="Window"/>
-        public static Spectrogram Estimate(IReadOnlySignal<double> signal, Func<int, double[]> winFunc = null, int? overlap = null)
+        public static Spectrogram Estimate(IReadOnlySignal<double> signal, Func<int, double[]> winFunc = null, int? overlap = null, 
+            ParallelOptions options = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
+            options = options ?? new ParallelOptions();
             var window = winFunc?.Invoke(signal.Count) ?? Window.Hamming(signal.Count);
             var stride = Math.Max(1, window.Length - (overlap ?? window.Length / 2));
             var sampCount = (signal.Count + stride - window.Length) / stride;
@@ -50,21 +54,27 @@ namespace Neuronic.TimeFrequency.Transforms
                 frequencies[i] = wFreq * i / nfft;
 
             var values = new Complex[sampCount, freqCount];
-            var windowed = new Complex[nfft];
 
-            for (int offset = 0; offset < sampCount; offset++)
-            {
-                for (int i = 0, k = offset * stride; i < window.Length; i++, k++)
-                    if (k < signal.Count)
-                        windowed[i] = window[i] * signal[k];
+            Parallel.For(0, sampCount, options,
+                () => new { windowed = new Complex[nfft] },
+                (offset, _, state) =>
+                {
+                    var windowed = state.windowed;
 
-                windowed.FFT();
+                    for (int i = 0, k = offset * stride; i < window.Length; i++, k++)
+                        if (k < signal.Count)
+                            windowed[i] = window[i] * signal[k];
 
-                for (int i = 0; i < freqCount; i++)
-                    values[offset, i] = windowed[i];
+                    windowed.FFT();
 
-                Array.Clear(windowed, 0, windowed.Length);
-            }
+                    for (int i = 0; i < freqCount; i++)
+                        values[offset, i] = windowed[i];
+
+                    Array.Clear(windowed, 0, windowed.Length);
+
+                    return state;
+                },
+                _ => {});
 
             return new Spectrogram(values, frequencies, signal.Start + (window.Length / 2) * signal.SamplingPeriod, signal.SamplingPeriod * stride);
         }
@@ -75,15 +85,17 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="window">The window. Default to hamming window.</param>
         /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks> 
         /// <seealso cref="Window"/>
-        public static Spectrogram Estimate(IReadOnlySignal<double> signal, double[] window, int? overlap = null)
+        public static Spectrogram Estimate(IReadOnlySignal<double> signal, double[] window, int? overlap = null,
+            ParallelOptions options = null)
         {
-            return Estimate(signal, _ => window, overlap);
+            return Estimate(signal, _ => window, overlap, options);
         }
 
         /// <summary>
@@ -92,16 +104,18 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="winFunc">The window function. Default to hamming window.</param>
         /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks> 
         /// <seealso cref="Window"/>
-        public static Spectrogram Estimate(IReadOnlySignal<float> signal, Func<int, double[]> winFunc = null, int? overlap = null)
+        public static Spectrogram Estimate(IReadOnlySignal<float> signal, Func<int, double[]> winFunc = null, int? overlap = null,
+            ParallelOptions options = null)
         {
             if (signal == null) throw new ArgumentNullException(nameof(signal));
-            return Estimate(signal.Map(x => (double) x), winFunc, overlap);
+            return Estimate(signal.Map(x => (double) x), winFunc, overlap, options);
         }
 
         /// <summary>
@@ -110,15 +124,17 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="window">The window. Default to hamming window.</param>
         /// <param name="overlap">The number of overlapped samples between consecutive window offsets.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The Spectrogram of <paramref name="signal"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
         /// <remarks>
         /// This algorithm is based on the <c>spectrogram</c> function in <c>Matlab R2014</c>.
         /// </remarks>
         /// <seealso cref="Window"/>
-        public static Spectrogram Estimate(IReadOnlySignal<float> signal, double[] window, int? overlap = null)
+        public static Spectrogram Estimate(IReadOnlySignal<float> signal, double[] window, int? overlap = null,
+            ParallelOptions options = null)
         {
-            return Estimate(signal, _ => window, overlap);
+            return Estimate(signal, _ => window, overlap, options);
         }
 
         /// <summary>

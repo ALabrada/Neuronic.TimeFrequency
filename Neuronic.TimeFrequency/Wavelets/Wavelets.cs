@@ -51,7 +51,6 @@ namespace Neuronic.TimeFrequency.Wavelets
         {
             if (order <= 0)
                 throw new ArgumentOutOfRangeException(nameof(order));
-            double denominator;
             var min = -5d;
             var max = 5d;
             var factor = Math.Pow(2 / Math.PI, 0.25);

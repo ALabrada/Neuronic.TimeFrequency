@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using MathNet.Numerics;
 using Neuronic.TimeFrequency.Wavelets;
 
@@ -32,13 +33,17 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the one proposed by Dr. Hans-Georg Stark on the book
         /// "Wavelets and Signal Processing: An Application-Based Introduction", Springer (2005).
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
-        {            
+        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<double> signal, 
+            IWavelet<Complex> wavelet, IEnumerable<double> scales,
+            ParallelOptions options = null)
+        {
+            options = options ?? new ParallelOptions();
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
@@ -51,29 +56,34 @@ namespace Neuronic.TimeFrequency.Transforms
             var t0 = -(signal.Count - 1 - 0.5 * signal.Count) * signal.SamplingPeriod;
             var oms = 2 * Math.PI / signal.SamplingPeriod;
             var values = new Complex[signal.Count - 1, scaleArray.Length];
-            var psiScale = new Complex[signal.Count];
 
-            for (int scale = 0; scale < scaleArray.Length; scale++)
-            {                
-                var psi = new Signal<Complex>(psiScale, t0 / scaleArray[scale], signal.SamplingRate * scaleArray[scale]);
-                wavelet.Evaluate(psi);
-                psi.Conjugate();
-                Array.Reverse(psiScale, 0, psiScale.Length);
-
-                psiScale.FFT();
-
-                var factor = 1d / Complex.Sqrt(Math.Abs(scaleArray[scale]));                
-                for (int offset = 0; offset < signal.Count; offset++)
+            Parallel.For(0, scaleArray.Length, options,
+                () => new { psiScale = new Complex[signal.Count] },
+                (scale, _, state) =>
                 {
-                    var trans = Complex.Exp(new Complex(0, -1) * t0 * offset * oms / signal.Count);
-                    psiScale[offset] = factor * trans * psiScale[offset] * yHat[offset];
-                }
+                    var psiScale = state.psiScale;
+                    var psi = new Signal<Complex>(psiScale, t0 / scaleArray[scale], signal.SamplingRate * scaleArray[scale]);
+                    wavelet.Evaluate(psi);
+                    psi.Conjugate();
+                    Array.Reverse(psiScale, 0, psiScale.Length);
 
-                psiScale.IFFT();
+                    psiScale.FFT();
 
-                for (int offset = 0; offset < signal.Count - 1; offset++)
-                    values[offset, scale] = psiScale[offset + 1];
-            }
+                    var factor = 1d / Complex.Sqrt(Math.Abs(scaleArray[scale]));
+                    for (int offset = 0; offset < signal.Count; offset++)
+                    {
+                        var trans = Complex.Exp(new Complex(0, -1) * t0 * offset * oms / signal.Count);
+                        psiScale[offset] = factor * trans * psiScale[offset] * yHat[offset];
+                    }
+
+                    psiScale.IFFT();
+
+                    for (int offset = 0; offset < signal.Count - 1; offset++)
+                        values[offset, scale] = psiScale[offset + 1];
+
+                    return state;
+                },
+                _ => { });
 
             return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, wavelet, scaleArray);
         }
@@ -84,14 +94,17 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the one proposed by Dr. Hans-Georg Stark on the book
         /// "Wavelets and Signal Processing: An Application-Based Introduction", Springer (2005).
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingFFT(IReadOnlySignal<float> signal, 
+            IWavelet<Complex> wavelet, IEnumerable<double> scales,
+            ParallelOptions options = null)
         {
-            return EstimateUsingFFT(signal.Map(x => (double) x), wavelet, scales);
+            return EstimateUsingFFT(signal.Map(x => (double) x), wavelet, scales, options);
         }
 
         /// <summary>
@@ -100,15 +113,19 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, 
+            IWavelet<Complex> wavelet, IEnumerable<double> scales,
+            ParallelOptions options = null)
         {
             if (wavelet is IWavelet<double> realWavelet)
-                return EstimateUsingConvolutions(signal, realWavelet, scales);
+                return EstimateUsingConvolutions(signal, realWavelet, scales, options);
 
+            options = options ?? new ParallelOptions();
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
@@ -118,25 +135,31 @@ namespace Neuronic.TimeFrequency.Transforms
             psi.Conjugate();
 
             var values = new Complex[signal.Count, scaleArray.Length];
-            var buffer = new Complex[signal.Count + 2];
-            var kernel = new List<Complex>(psi.Count);
-            for (int scale = 0; scale < scaleArray.Length; scale++)
-            {
-                var freq = scaleArray[scale] / signal.SamplingPeriod;
-                kernel.Clear();
-                kernel.AddRange(psi.Sample(freq));
-                while (kernel.Count <= 2)
-                    kernel.Add(psi[0]);
-                kernel.Reverse();
 
-                signal.Convolve(kernel, buffer);
-                new Signal<Complex>(buffer).Differentiate();
+            Parallel.For(0, scaleArray.Length, options, () => new
+                {
+                    buffer = new Complex[signal.Count + 2], kernel = new List<Complex>(psi.Count)
+                },
+                (scale, _, state) =>
+                {
+                    var freq = scaleArray[scale] / signal.SamplingPeriod;
+                    state.kernel.Clear();
+                    state.kernel.AddRange(psi.Sample(freq));
+                    while (state.kernel.Count <= 2)
+                        state.kernel.Add(psi[0]);
+                    state.kernel.Reverse();
 
-                var factor = -Math.Sqrt(scaleArray[scale]);
-                var offset = 1 - (kernel.Count & 1);
-                for (int i = 0; i < signal.Count; i++)
-                    values[i, scale] = factor * buffer[i + offset];
-            }
+                    signal.Convolve(state.kernel, state.buffer);
+                    new Signal<Complex>(state.buffer).Differentiate();
+
+                    var factor = -Math.Sqrt(scaleArray[scale]);
+                    var offset = 1 - (state.kernel.Count & 1);
+                    for (int i = 0; i < signal.Count; i++)
+                        values[i, scale] = factor * state.buffer[i + offset];
+
+                    return state;
+                },
+                _ => { });
 
             return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, wavelet, scaleArray);
         }
@@ -147,13 +170,16 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, 
+            IWavelet<Complex> wavelet, IEnumerable<double> scales,
+            ParallelOptions options = null)
         {
-            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
+            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales, options);
         }
 
         /// <summary>
@@ -162,12 +188,16 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The real-valued wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<double> signal, 
+            IWavelet<double> wavelet, IEnumerable<double> scales, 
+            ParallelOptions options = null)
         {
+            options = options ?? new ParallelOptions {};
             scales = scales ?? Enumerable.Range(1, signal.Count).Select(i => signal.SamplingPeriod * i);
             var scaleArray = scales.ToArray();
             wavelet = wavelet ?? Wavelets.Wavelets.Morlet;
@@ -176,25 +206,29 @@ namespace Neuronic.TimeFrequency.Transforms
             psi.Integrate();
 
             var values = new Complex[signal.Count, scaleArray.Length];
-            var buffer = new double[signal.Count + 2];
-            var kernel = new List<double>(psi.Count);
-            for (int scale = 0; scale < scaleArray.Length; scale++)
-            {
-                var freq = scaleArray[scale] / signal.SamplingPeriod;
-                kernel.Clear();
-                kernel.AddRange(psi.Sample(freq));
-                while (kernel.Count <= 2)
-                    kernel.Add(psi[0]);
-                kernel.Reverse();
+            Parallel.For(0, scaleArray.Length, options, () => new
+                {
+                    buffer = new double[signal.Count + 2], kernel = new List<double>(psi.Count)
+                },
+                (scale, _, state) =>
+                {
+                    var freq = scaleArray[scale] / signal.SamplingPeriod;
+                    state.kernel.Clear();
+                    state.kernel.AddRange(psi.Sample(freq));
+                    while (state.kernel.Count <= 2)
+                        state.kernel.Add(psi[0]);
+                    state.kernel.Reverse();
 
-                signal.Convolve(kernel, buffer);
-                new Signal<double>(buffer).Differentiate();
+                    signal.Convolve(state.kernel, state.buffer);
+                    new Signal<double>(state.buffer).Differentiate();
 
-                var factor = -Math.Sqrt(scaleArray[scale]);
-                var offset = 1 - (kernel.Count & 1);
-                for (int i = 0; i < signal.Count; i++)
-                    values[i, scale] = factor * buffer[i + offset];
-            }
+                    var factor = -Math.Sqrt(scaleArray[scale]);
+                    var offset = 1 - (state.kernel.Count & 1);
+                    for (int i = 0; i < signal.Count; i++)
+                        values[i, scale] = factor * state.buffer[i + offset];
+                    return state;
+                },
+                _ => { });
 
             return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);
         }
@@ -205,13 +239,16 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="signal">The signal.</param>
         /// <param name="wavelet">The real-valued wavelet.</param>
         /// <param name="scales">The scales.</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The computed CWT.</returns>
         /// <remarks>
         /// This algorithm is based on the <c>cwt</c> function in <c>Matlab R2014</c>.
         /// </remarks>
-        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, IWavelet<double> wavelet, IEnumerable<double> scales)
+        public static ContinuousWaveletTransform EstimateUsingConvolutions(IReadOnlySignal<float> signal, 
+            IWavelet<double> wavelet, IEnumerable<double> scales,
+            ParallelOptions options = null)
         {
-            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
+            return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales, options);
         }
 
         /// <summary>
