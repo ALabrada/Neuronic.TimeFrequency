@@ -14,11 +14,13 @@ namespace Neuronic.TimeFrequency.Transforms
         private readonly double[,] _values;
         private readonly double[] _frequencies;
 
-        internal TimeFrequencyDistribution(double[,] values, double[] frequencies, double samplingPeriod)
+        internal TimeFrequencyDistribution(double[,] values, double[] frequencies, 
+            double startTime, double samplingPeriod)
         {
             _values = values;
             _frequencies = frequencies;
             SamplingPeriod = samplingPeriod;
+            StartTime = startTime;
         }
 
         private static Complex[] GetAnalytic(IReadOnlySignal<double> signal)
@@ -168,7 +170,7 @@ namespace Neuronic.TimeFrequency.Transforms
             var frequencies = new double[tfd.GetLength(1)];
             for (int i = 0; i < frequencies.Length; i++)
                 frequencies[i] = (i * 0.5 * signal.SamplingRate) / (frequencies.Length - 1);
-            return new TimeFrequencyDistribution(tfd, frequencies, signal.SamplingPeriod / 2);
+            return new TimeFrequencyDistribution(tfd, frequencies, signal.Start, signal.SamplingPeriod / 2);
         }
         
         /// <summary>
@@ -188,6 +190,11 @@ namespace Neuronic.TimeFrequency.Transforms
             if (signal == null) throw new ArgumentNullException(nameof(signal));
             return Estimate(signal.Map(x => (double) x), kernel);
         }
+
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        public double StartTime { get; }
 
         /// <summary>
         /// Gets the sampling period.
@@ -241,28 +248,10 @@ namespace Neuronic.TimeFrequency.Transforms
         {
             get
             {
-                var offset = (int)Math.Round(delay / SamplingPeriod);
-                var freqIndex = Array.BinarySearch(_frequencies, frequency);
-                if (freqIndex < 0)
-                    freqIndex = ~freqIndex;
+                var offset = this.FindClosestOffsetOfTime(delay);
+                var freqIndex = this.FindClosestIndexOfFrequency(frequency);
                 return this[offset, freqIndex];
             }
         }
-
-        /// <summary>
-        /// Enumerates the values associated with the specified frequency.
-        /// </summary>
-        /// <param name="index">The index of the frequency.</param>
-        /// <returns>The TFD values.</returns>
-        public IEnumerable<double> EnumerateFrequency(int index) =>
-            Enumerable.Range(0, _values.GetLength(0)).Select(j => _values[j, index]);
-
-        /// <summary>
-        /// Enumerates the values associated with the specified offset.
-        /// </summary>
-        /// <param name="index">The offset.</param>
-        /// <returns>The TFD values.</returns>
-        public IEnumerable<double> EnumerateOffset(int index) =>
-            Enumerable.Range(0, _values.GetLength(1)).Select(i => _values[index, i]);
     }
 }

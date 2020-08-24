@@ -16,11 +16,13 @@ namespace Neuronic.TimeFrequency.Transforms
         private readonly Complex[,] _values;
         private readonly double[] _scales;
 
-        private ContinuousWaveletTransform(Complex[,] values, double samplingPeriod, IWavelet<Complex> wavelet, IEnumerable<double> scales)
+        private ContinuousWaveletTransform(Complex[,] values, double startTime, double samplingPeriod,
+            IWavelet<Complex> wavelet, IEnumerable<double> scales)
         {
             _values = values;
             SamplingPeriod = samplingPeriod;
             Wavelet = wavelet;
+            StartTime = startTime;
             _scales = scales.ToArray();
         }
 
@@ -73,7 +75,7 @@ namespace Neuronic.TimeFrequency.Transforms
                     values[offset, scale] = psiScale[offset + 1];
             }
 
-            return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
+            return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
         /// <summary>
@@ -136,7 +138,7 @@ namespace Neuronic.TimeFrequency.Transforms
                     values[i, scale] = factor * buffer[i + offset];
             }
 
-            return new ContinuousWaveletTransform(values, signal.SamplingPeriod, wavelet, scaleArray);
+            return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, wavelet, scaleArray);
         }
 
         /// <summary>
@@ -194,7 +196,7 @@ namespace Neuronic.TimeFrequency.Transforms
                     values[i, scale] = factor * buffer[i + offset];
             }
 
-            return new ContinuousWaveletTransform(values, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);
+            return new ContinuousWaveletTransform(values, signal.Start, signal.SamplingPeriod, (IWavelet<Complex>) wavelet, scaleArray);
         }
 
         /// <summary>
@@ -211,6 +213,11 @@ namespace Neuronic.TimeFrequency.Transforms
         {
             return EstimateUsingConvolutions(signal.Map(x => (double) x), wavelet, scales);
         }
+
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        public double StartTime { get; }
 
         /// <summary>
         /// Gets the sampling period of the source signal.
@@ -274,7 +281,7 @@ namespace Neuronic.TimeFrequency.Transforms
         {
             get
             {
-                var offset = (int)Math.Round(delay / SamplingPeriod);
+                var offset = this.FindClosestOffsetOfTime(delay);
                 var scaleIndex = Array.BinarySearch(_scales, scale);
                 if (scaleIndex < 0)
                     scaleIndex = ~scaleIndex;
@@ -287,12 +294,12 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </summary>
         /// <param name="scale">The scale.</param>
         /// <returns>The time domain content.</returns>
-        public IEnumerable<Complex> EnumerateScale(double scale)
+        public IEnumerable<Complex> EnumerateValuesOfScale(double scale)
         {
             var scaleIndex = Array.BinarySearch(_scales, scale);
             if (scaleIndex < 0)
                 scaleIndex = ~scaleIndex;
-            return EnumerateScale(scaleIndex);
+            return EnumerateValuesOfScaleAt(scaleIndex);
         }
 
         /// <summary>
@@ -300,7 +307,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </summary>
         /// <param name="scaleIndex">Index of the scale in <see cref="Scales"/>.</param>
         /// <returns>The time domain content.</returns>
-        public IEnumerable<Complex> EnumerateScale(int scaleIndex)
+        public IEnumerable<Complex> EnumerateValuesOfScaleAt(int scaleIndex)
         {
             for (int i = 0; i < _values.GetLength(0); i++)
                 yield return _values[i, scaleIndex];

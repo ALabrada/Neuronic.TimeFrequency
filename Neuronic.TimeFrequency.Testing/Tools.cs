@@ -102,27 +102,5 @@ namespace Neuronic.TimeFrequency.Testing
                     return null;
             }
         }
-
-        public static int ArgMin<T>(this IEnumerable<T> items) where T : IComparable<T>
-        {
-            using (var enumerator = items.GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                    return -1;
-
-                var min = enumerator.Current;
-                var minIndex = 0;
-                for (int index = 1; enumerator.MoveNext(); index++)
-                {
-                    if (min.CompareTo(enumerator.Current) > 0)
-                    {
-                        min = enumerator.Current;
-                        minIndex = index;
-                    }
-                }
-
-                return minIndex;
-            }
-        }
     }
 }

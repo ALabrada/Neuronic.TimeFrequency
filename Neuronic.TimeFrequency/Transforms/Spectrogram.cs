@@ -170,10 +170,8 @@ namespace Neuronic.TimeFrequency.Transforms
         {
             get
             {
-                var offset = (int)Math.Round(time / SamplingPeriod);
-                var freqIndex = Array.BinarySearch(_frequencies, frequency);
-                if (freqIndex < 0)
-                    freqIndex = ~freqIndex;
+                var offset = this.FindClosestOffsetOfTime(time);
+                var freqIndex = this.FindClosestIndexOfFrequency(frequency);
                 return this[offset, freqIndex];
             }
         }
@@ -200,7 +198,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </summary>
         /// <param name="index">The index of the frequency.</param>
         /// <returns>The TFD values.</returns>
-        public IEnumerable<Complex> EnumerateFrequency(int index) =>
+        public IEnumerable<Complex> EnumerateValuesOfFrequencyAt(int index) =>
             Enumerable.Range(0, _values.GetLength(0)).Select(j => _values[j, index]);
     }
 }

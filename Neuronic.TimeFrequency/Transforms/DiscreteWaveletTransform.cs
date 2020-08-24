@@ -11,15 +11,17 @@ namespace Neuronic.TimeFrequency.Transforms
     /// </summary>
     public class DiscreteWaveletTransform
     {
-        private DiscreteWaveletTransform(IList<double> approximation, IList<double> detail, double samplingPeriod, OrthogonalWavelet wavelet)
+        private DiscreteWaveletTransform(IList<double> approximation, IList<double> detail, 
+            double startTime, double samplingPeriod, OrthogonalWavelet wavelet)
         {
             Detail = new ReadOnlyCollection<double>(detail);
             Approximation = new ReadOnlyCollection<double>(approximation);
             SamplingPeriod = samplingPeriod;
             Wavelet = wavelet;
+            StartTime = startTime;
         }
 
-        private static DiscreteWaveletTransform Estimate(List<double> samples, double samplingPeriod, OrthogonalWavelet wavelet)
+        private static DiscreteWaveletTransform Estimate(List<double> samples, double startTime, double samplingPeriod, OrthogonalWavelet wavelet)
         {
             var lowDec = wavelet.LowDecompositionFilter;
             var highDec = wavelet.HighDecompositionFilter;
@@ -32,8 +34,7 @@ namespace Neuronic.TimeFrequency.Transforms
             samples.Convolve(highDec, d, 2);
             return new DiscreteWaveletTransform(
                 new ArraySegment<double>(a, 1, length),
-                new ArraySegment<double>(d, 1, length),
-                samplingPeriod, wavelet);
+                new ArraySegment<double>(d, 1, length), startTime, samplingPeriod, wavelet);
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace Neuronic.TimeFrequency.Transforms
             var samples = new List<double>(count);
             samples.AddRange(padding.Pad(signal, wavelet.FilterLength - 1).Take(count));
 
-            return Estimate(samples, samplingPeriod, wavelet);
+            return Estimate(samples, signal.Start, samplingPeriod, wavelet);
         }
 
         /// <summary>
@@ -87,8 +88,13 @@ namespace Neuronic.TimeFrequency.Transforms
             var samples = new List<double>(count);
             samples.AddRange(padding.Pad(signal, wavelet.FilterLength - 1).Take(count).Select(x => (double) x));
 
-            return Estimate(samples, samplingPeriod, wavelet);
+            return Estimate(samples, signal.Start, samplingPeriod, wavelet);
         }
+
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        double StartTime { get; }
 
         /// <summary>
         /// Gets the sampling period of the source signal.

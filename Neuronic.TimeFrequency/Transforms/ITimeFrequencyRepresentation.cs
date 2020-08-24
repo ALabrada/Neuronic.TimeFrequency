@@ -8,6 +8,11 @@ namespace Neuronic.TimeFrequency.Transforms
     public interface ITimeFrequencyRepresentation
     {
         /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        double StartTime { get; }
+
+        /// <summary>
         /// Gets the sampling period in the time domain.
         /// </summary>
         double SamplingPeriod { get; }

@@ -42,7 +42,7 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < expectedValues.Count; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(spectrogram.EnumerateFrequency(i));
+                actualValues.AddRange(spectrogram.EnumerateValuesOfFrequencyAt(i));
                 Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
             }
         }
@@ -79,7 +79,7 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < scales.Length; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(cwt.EnumerateScale(i));
+                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i));
                 Tools.AssertAreEqual(expectedValues[i].Take(expectedValues[i].Length - 1).ToList(), actualValues, 1e-3);
             }            
         }
@@ -118,7 +118,7 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < scales.Length; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(cwt.EnumerateScale(i));
+                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i));
                 Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
             }
         }
@@ -178,7 +178,7 @@ namespace Neuronic.TimeFrequency.Testing
             for (int i = 0; i < expectedValues.Count; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(tfd.EnumerateOffset(i));
+                actualValues.AddRange(tfd.EnumerateValuesOfTimeAt(i));
                 Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-5);
             }
         }
@@ -260,7 +260,7 @@ namespace Neuronic.TimeFrequency.Testing
                     if (i - component.FrequencyOffset >= 0 && i - component.FrequencyOffset < component.Frequency.Count)
                     {
                         var frequency = component.Frequency[i - component.FrequencyOffset];
-                        var freqIndex = spectrogram.Frequencies.Select(f => Math.Abs(f - frequency)).ArgMin();
+                        var freqIndex = spectrogram.FindClosestIndexOfFrequency(frequency);
                         randomValues.Remove(freqIndex);
                         randomValues.Remove(freqIndex - 1);
                         randomValues.Remove(freqIndex + 1);

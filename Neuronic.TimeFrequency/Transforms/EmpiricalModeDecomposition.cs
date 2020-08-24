@@ -17,10 +17,11 @@ namespace Neuronic.TimeFrequency.Transforms
     {
         private readonly IList<double[]> _imfs;
 
-        private EmpiricalModeDecomposition(IList<double[]> imfs, double samplingPeriod)
+        private EmpiricalModeDecomposition(IList<double[]> imfs, double startTime, double samplingPeriod)
         {
             _imfs = imfs;
             SamplingPeriod = samplingPeriod;
+            StartTime = startTime;
         }
 
         private static void GetLocalExtremeValues(IReadOnlyList<double> signal, List<DoublePoint> max, List<DoublePoint> min)
@@ -250,7 +251,7 @@ namespace Neuronic.TimeFrequency.Transforms
             if (samples.Sum(x => x * x) / energy > 10e-12)
                 results.Add(samples.Samples);
 
-            return new EmpiricalModeDecomposition(results, signal.SamplingPeriod);
+            return new EmpiricalModeDecomposition(results, signal.Start, signal.SamplingPeriod);
         }
 
         /// <summary>
@@ -272,6 +273,11 @@ namespace Neuronic.TimeFrequency.Transforms
         {
             return Estimate(signal.Map(x => (double) x), outerStop, innerStop, alpha);
         }
+
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        double StartTime { get; }
 
         /// <summary>
         /// Gets the sampling period.
@@ -353,7 +359,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 components.Add(new SpectralAnalysis.MonocomponentSignal(amplitude, frequency));
             }
 
-            return new SpectralAnalysis(components, SamplingPeriod, n);
+            return new SpectralAnalysis(components, StartTime, SamplingPeriod, n);
         }
 
         /// <summary>
@@ -394,7 +400,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 components.Add(component);
             }
 
-            return new SpectralAnalysis(components, SamplingPeriod, z.Count);
+            return new SpectralAnalysis(components, StartTime, SamplingPeriod, z.Count);
         }
 
         private struct DoublePoint

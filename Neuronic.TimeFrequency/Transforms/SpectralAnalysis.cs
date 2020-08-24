@@ -19,18 +19,26 @@ namespace Neuronic.TimeFrequency.Transforms
         /// Initializes a new instance of the <see cref="SpectralAnalysis"/> class.
         /// </summary>
         /// <param name="components">The signal components.</param>
+        /// <param name="startTime">The offset of the first sample in the time domain.</param>
         /// <param name="samplingPeriod">The sampling period.</param>
         /// <param name="sampleCount">The samples count.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="components"/> is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="samplingPeriod"/> is not positive.</exception>
-        public SpectralAnalysis(IEnumerable<MonocomponentSignal> components, double samplingPeriod, int sampleCount)
+        public SpectralAnalysis(IEnumerable<MonocomponentSignal> components, double startTime, double samplingPeriod,
+            int sampleCount)
         {
             if (components == null) throw new ArgumentNullException(nameof(components));
             if (samplingPeriod <= 0) throw new ArgumentOutOfRangeException(nameof(samplingPeriod));
             SamplingPeriod = samplingPeriod;
             SampleCount = sampleCount;
+            StartTime = startTime;
             _components = components.ToList();
         }
+
+        /// <summary>
+        /// Gets the offset of the first sample in the time domain.
+        /// </summary>
+        public double StartTime { get; }
 
         /// <summary>
         /// Gets the sampling period.
@@ -122,7 +130,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 }
             }
 
-            return new TimeFrequencyDistribution(amplitudes, frequencies, SamplingPeriod);
+            return new TimeFrequencyDistribution(amplitudes, frequencies, StartTime, SamplingPeriod);
         }
 
         /// <summary>
