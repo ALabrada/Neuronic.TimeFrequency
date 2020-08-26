@@ -9,5 +9,5 @@ switch wtype
     case 4
         [psi,x] = wavefun(wname, 10);
 end
-csvwrite(['wavefun_', wname, '.csv'], [x; psi]);
+save(['wavefun_', wname, '.mat'], 'x', 'psi');
 end

@@ -172,4 +172,157 @@
   <data name="HHT_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\HHT_128.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="wavefun_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_bior2.6.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_bior3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db20.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_db5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_gaus1.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_gaus2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_gaus2.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_gaus3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_gaus3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_gaus4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_gaus4.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_gaus5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_haar.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_mexh.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_morl.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_rbio1.5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wavefun_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavefun_rbio3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_bior2.6.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_bior3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_db10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_db20.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_db5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_haar.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_rbio1.5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="wfilters_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wfilters_rbio3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="mycwt_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_gaus1.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="mycwt_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_gaus5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="mycwt_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_mexh.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="mycwt_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mycwt_morl.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_bior2.6.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_bior3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db20.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_db5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_gaus1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_gaus1.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_gaus5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_gaus5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_haar.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_mexh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_mexh.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_morl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_morl.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_rbio1.5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="cwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cwt_rbio3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_bior2.6.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_bior3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db20.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_db5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_haar.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_rbio1.5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\dwt_rbio3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="spectrogram_bart125_over62" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spectrogram_bart125_over62.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="spectrogram_gauss11_noover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spectrogram_gauss11_noover.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="spectrogram_gauss11_over10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spectrogram_gauss11_over10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="spectrogram_hann255_noover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\spectrogram_hann255_noover.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

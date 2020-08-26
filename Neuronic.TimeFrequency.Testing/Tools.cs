@@ -59,13 +59,10 @@ namespace Neuronic.TimeFrequency.Testing
             Assert.AreEqual(0, relDif, delta);
         }
 
-        public static void AssertAreEqual(IReadOnlyList<double> expectedValues, IReadOnlyList<double> actualValues, double delta)
+        public static void AssertAreEqual(IList<double> expectedValues, IList<double> actualValues, double delta)
         {
             Assert.AreEqual(expectedValues.Count, actualValues.Count);
-            var dif = expectedValues.Zip(actualValues, (x, y) => Math.Abs(x - y)).Sum();
-            var relDif = dif / expectedValues.Count;
-            Trace.WriteLine($"Difference: {relDif:F5}");
-            Assert.AreEqual(0, relDif, delta);
+            Assert.IsTrue(expectedValues.ListAlmostEqual(actualValues, delta));
         }
 
         public static Func<int, double[]> CreateWindow(string name)

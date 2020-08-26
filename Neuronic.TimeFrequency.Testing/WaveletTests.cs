@@ -4,7 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Resources;
+using Accord.IO;
 using Accord.Math.Wavelets;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neuronic.TimeFrequency.Testing.Properties;
 using Neuronic.TimeFrequency.Wavelets;
@@ -49,14 +53,18 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestEvaluatingContinuousWavelets(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            var expectedValues = Tools.ReadNumbersFrom(valueList).Select(c => (Complex) c).ToList();
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var x = CreateMatrix.DenseOfArray(mat.Read<double[,]>("x")).Row(0);
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("psi")).Row(0);
 
-            var wavelet = (ContinuousWavelet)Wavelets.Wavelets.FromName(wavName);
+            var wavelet = (ContinuousWavelet) Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            var actualValues = wavelet.Evaluate(wavelet.Minimum, wavelet.Maximum, expectedValues.Count);
 
-            Tools.AssertAreEqual(expectedValues, actualValues, 1e-7);
+            var actualValues = wavelet.EvaluateDomain();
+            Assert.AreEqual(x[0], actualValues.Start, 1e-5);
+            Assert.AreEqual(x[x.Count - 1], actualValues.End, 1e-5);
+
+            Assert.IsTrue(expectedValues.ListAlmostEqual(actualValues.Select(i => i.Real).ToList(), 1e-5));
         }
 
         [TestMethod]
@@ -71,23 +79,18 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestEvaluatingOrthogonalWavelets(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            List<float> x;
-            List<Complex> expectedValues;
-            using (var reader = new StringReader(valueList))
-            {
-                x = Tools.ReadNumbersFrom(reader.ReadLine()).ToList();
-                expectedValues = Tools.ReadNumbersFrom(reader.ReadLine()).Select(c => (Complex)c).ToList();
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var x = CreateMatrix.DenseOfArray(mat.Read<double[,]>("x")).Row(0);
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("psi")).Row(0);
 
             var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            //var actualValues = new Complex[expectedValues.Count];
-            //var signal = wavelet.Evaluate();
-            //Array.Copy(signal.Samples, actualValues, signal.Count);
-            var actualValues = wavelet.EvaluateDomain();
 
-            Tools.AssertAreEqual(expectedValues, actualValues, 1e-5);
+            var actualValues = wavelet.EvaluateDomain();
+            Assert.AreEqual(x[0], actualValues.Start, 1e-5);
+            Assert.AreEqual(x[x.Count - 1], actualValues.End, 1e-5);
+
+            Assert.IsTrue(expectedValues.ListAlmostEqual(actualValues.Select(i => i.Real).ToList(), 1e-5));
         }
 
         [TestMethod]
@@ -102,19 +105,19 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestOrthogonalFilters(string wavName, string valueList)
         {
             var wavelet = (OrthogonalWavelet)Wavelets.Wavelets.FromName(wavName);
+
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            List<double> lowRec, highRec, lowRec2 = null, highRec2 = null;
-            using (var reader = new StringReader(valueList))
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("F"));
+            Vector<double> lowRec, highRec, lowRec2 = null, highRec2 = null;
+            lowRec = expectedValues.Row(0);
+            highRec = expectedValues.Row(1);
+            if (wavelet is BiorthogonalWavelet)
             {
-                lowRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
-                highRec = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToList();
-                if (wavelet is BiorthogonalWavelet)
-                {
-                    lowRec2 = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToList();
-                    highRec2 = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToList();
-                }
+                lowRec2 = expectedValues.Row(2);
+                highRec2 = expectedValues.Row(3);
             }
+
             Tools.AssertAreEqual(lowRec, wavelet.LowReconstructionFilter, 1e-5);
             Tools.AssertAreEqual(highRec, wavelet.HighReconstructionFilter, 1e-5);
             if (wavelet is BiorthogonalWavelet bior)

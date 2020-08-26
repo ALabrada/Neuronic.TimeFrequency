@@ -84,87 +84,75 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Resources\cwt_bior2.6.csv" />
-    <None Include="Resources\cwt_bior3.3.csv" />
-    <None Include="Resources\cwt_db10.csv" />
-    <None Include="Resources\cwt_db20.csv" />
-    <None Include="Resources\cwt_db5.csv" />
-    <None Include="Resources\cwt_gaus1.csv" />
-    <None Include="Resources\cwt_gaus5.csv" />
-    <None Include="Resources\cwt_haar.csv" />
-    <None Include="Resources\cwt_mexh.csv" />
-    <None Include="Resources\cwt_morl.csv" />
-    <None Include="Resources\cwt_rbio1.5.csv" />
-    <None Include="Resources\cwt_rbio3.3.csv" />
-    <None Include="Resources\dtfd_cw_100.csv" />
+    <None Include="Resources\cwt_bior2.6.mat" />
+    <None Include="Resources\cwt_bior3.3.mat" />
+    <None Include="Resources\cwt_db10.mat" />
+    <None Include="Resources\cwt_db20.mat" />
+    <None Include="Resources\cwt_db5.mat" />
+    <None Include="Resources\cwt_gaus1.mat" />
+    <None Include="Resources\cwt_gaus5.mat" />
+    <None Include="Resources\cwt_haar.mat" />
+    <None Include="Resources\cwt_mexh.mat" />
+    <None Include="Resources\cwt_morl.mat" />
+    <None Include="Resources\cwt_rbio1.5.mat" />
+    <None Include="Resources\cwt_rbio3.3.mat" />
     <None Include="Resources\dtfd_cw_100.mat" />
-    <None Include="Resources\dtfd_cw_30.csv" />
     <None Include="Resources\dtfd_cw_30.mat" />
-    <None Include="Resources\dwt_bior2.6.csv" />
-    <None Include="Resources\dwt_bior3.3.csv" />
-    <None Include="Resources\dwt_db10.csv" />
-    <None Include="Resources\dwt_db20.csv" />
-    <None Include="Resources\dwt_db5.csv" />
-    <None Include="Resources\dwt_haar.csv" />
-    <None Include="Resources\dwt_rbio1.5.csv" />
-    <None Include="Resources\dwt_rbio3.3.csv" />
-    <None Include="Resources\gen_kernel_cw_100.csv" />
+    <None Include="Resources\dwt_bior2.6.mat" />
+    <None Include="Resources\dwt_bior3.3.mat" />
+    <None Include="Resources\dwt_db10.mat" />
+    <None Include="Resources\dwt_db20.mat" />
+    <None Include="Resources\dwt_db5.mat" />
+    <None Include="Resources\dwt_haar.mat" />
+    <None Include="Resources\dwt_rbio1.5.mat" />
+    <None Include="Resources\dwt_rbio3.3.mat" />
     <None Include="Resources\gen_kernel_cw_100.mat" />
-    <None Include="Resources\gen_kernel_cw_30.csv" />
     <None Include="Resources\gen_kernel_cw_30.mat" />
-    <None Include="Resources\gen_kernel_swvd_bart51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_bart51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_bart51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_bart51_time.mat" />
-    <None Include="Resources\gen_kernel_swvd_delta51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_delta51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_delta51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_delta51_time.mat" />
-    <None Include="Resources\gen_kernel_swvd_gauss51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_gauss51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_gauss51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_gauss51_time.mat" />
-    <None Include="Resources\gen_kernel_swvd_hamm51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_hamm51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_hamm51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_hamm51_time.mat" />
-    <None Include="Resources\gen_kernel_swvd_hann51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_hann51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_hann51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_hann51_time.mat" />
-    <None Include="Resources\gen_kernel_swvd_rect51_doppler.csv" />
     <None Include="Resources\gen_kernel_swvd_rect51_doppler.mat" />
-    <None Include="Resources\gen_kernel_swvd_rect51_time.csv" />
     <None Include="Resources\gen_kernel_swvd_rect51_time.mat" />
-    <None Include="Resources\HHT_128.csv" />
     <None Include="Resources\HHT_128.mat" />
-    <None Include="Resources\mycwt_gaus1.csv" />
-    <None Include="Resources\mycwt_gaus5.csv" />
-    <None Include="Resources\mycwt_mexh.csv" />
-    <None Include="Resources\mycwt_morl.csv" />
-    <None Include="Resources\ParabEmd_128.csv" />
+    <None Include="Resources\mycwt_gaus1.mat" />
+    <None Include="Resources\mycwt_gaus5.mat" />
+    <None Include="Resources\mycwt_mexh.mat" />
+    <None Include="Resources\mycwt_morl.mat" />
     <None Include="Resources\ParabEmd_128.mat" />
-    <None Include="Resources\spectrogram_bart125_over62.csv" />
-    <None Include="Resources\spectrogram_gauss11_noover.csv" />
-    <None Include="Resources\spectrogram_gauss11_over10.csv" />
-    <None Include="Resources\spectrogram_hamm255_noover.csv" />
-    <None Include="Resources\spectrogram_hann255_noover.csv" />
-    <None Include="Resources\wavefun_bior2.6.csv" />
-    <None Include="Resources\wavefun_bior3.3.csv" />
-    <None Include="Resources\wavefun_db10.csv" />
-    <None Include="Resources\wavefun_db20.csv" />
-    <None Include="Resources\wavefun_db5.csv" />
-    <None Include="Resources\wavefun_haar.csv" />
-    <None Include="Resources\wavefun_rbio1.5.csv" />
-    <None Include="Resources\wavefun_rbio3.3.csv" />
-    <None Include="Resources\wfilters_bior2.6.csv" />
-    <None Include="Resources\wfilters_bior3.3.csv" />
-    <None Include="Resources\wfilters_db10.csv" />
-    <None Include="Resources\wfilters_db20.csv" />
-    <None Include="Resources\wfilters_db5.csv" />
-    <None Include="Resources\wfilters_haar.csv" />
-    <None Include="Resources\wfilters_rbio1.5.csv" />
-    <None Include="Resources\wfilters_rbio3.3.csv" />
+    <None Include="Resources\spectrogram_bart125_over62.mat" />
+    <None Include="Resources\spectrogram_gauss11_noover.mat" />
+    <None Include="Resources\spectrogram_gauss11_over10.mat" />
+    <None Include="Resources\spectrogram_hann255_noover.mat" />
+    <None Include="Resources\wavefun_bior2.6.mat" />
+    <None Include="Resources\wavefun_bior3.3.mat" />
+    <None Include="Resources\wavefun_db10.mat" />
+    <None Include="Resources\wavefun_db20.mat" />
+    <None Include="Resources\wavefun_db5.mat" />
+    <None Include="Resources\wavefun_gaus1.mat" />
+    <None Include="Resources\wavefun_gaus2.mat" />
+    <None Include="Resources\wavefun_gaus3.mat" />
+    <None Include="Resources\wavefun_gaus4.mat" />
+    <None Include="Resources\wavefun_gaus5.mat" />
+    <None Include="Resources\wavefun_haar.mat" />
+    <None Include="Resources\wavefun_mexh.mat" />
+    <None Include="Resources\wavefun_morl.mat" />
+    <None Include="Resources\wavefun_rbio1.5.mat" />
+    <None Include="Resources\wavefun_rbio3.3.mat" />
+    <None Include="Resources\wfilters_bior2.6.mat" />
+    <None Include="Resources\wfilters_bior3.3.mat" />
+    <None Include="Resources\wfilters_db10.mat" />
+    <None Include="Resources\wfilters_db20.mat" />
+    <None Include="Resources\wfilters_db5.mat" />
+    <None Include="Resources\wfilters_haar.mat" />
+    <None Include="Resources\wfilters_rbio1.5.mat" />
+    <None Include="Resources\wfilters_rbio3.3.mat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Neuronic.TimeFrequency\Neuronic.TimeFrequency.csproj">
@@ -177,27 +165,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_gaus1.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_gaus2.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_gaus3.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_gaus4.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_gaus5.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_morl.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wavefun_mexh.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

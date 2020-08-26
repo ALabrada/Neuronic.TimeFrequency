@@ -23,5 +23,6 @@ for i=1:rows,
     matrix(i,:)=ifft(conv_hat);
 end
 
-csvwrite(['mycwt_', wname, '.csv'], [t; y; matrix]);
+R = [t; y; matrix];
+save(['mycwt_', wname, '.mat'], 'R');
 end

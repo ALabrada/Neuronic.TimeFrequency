@@ -1,5 +1,6 @@
 function savecwt(S,wname)
 scales = 1:10;
 c = cwt(S,scales,wname);
-csvwrite(['cwt_', wname, '.csv'], [S; c]);
+R = [S; c];
+save(['cwt_', wname, '.mat'], 'R');
 end

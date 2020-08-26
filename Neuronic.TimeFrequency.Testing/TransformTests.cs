@@ -25,27 +25,20 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestShortTimeFourierTransform(string winName, int winLength, int overlap, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            var expectedValues = new List<Complex[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadComplexNumbersFrom(line).ToArray());
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("S")).Row(0);
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("X"));
 
             var window = Tools.CreateWindow(winName).Invoke(winLength);
-            var spectrogram = Spectrogram.Estimate(new Signal<float>(samples), window, overlap);
+            var spectrogram = Spectrogram.Estimate(new Signal<double>(samples.ToArray()), window, overlap);
 
-            Assert.AreEqual(expectedValues.Count, spectrogram.FrequencyCount);
-            var actualValues = new List<Complex>(samples.Length);
-            for (int i = 0; i < expectedValues.Count; i++)
+            Assert.AreEqual(expectedValues.RowCount, spectrogram.FrequencyCount);
+            var actualValues = new List<double>(samples.Count);
+            for (int i = 0; i < expectedValues.RowCount; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(spectrogram.EnumerateValuesOfFrequencyAt(i));
-                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
+                actualValues.AddRange(spectrogram.EnumerateValuesOfFrequencyAt(i).Select(c => c.Real));
+                Tools.AssertAreEqual(expectedValues.Row(i), actualValues, 1e-3);
             }
         }
 
@@ -58,31 +51,25 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestContinuousWaveletTransformUsingFFT(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] t;
-            float[] samples;
-            var expectedValues = new List<Complex[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                t = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadComplexNumbersFrom(line).ToArray());
-            }
-            var scales = Enumerable.Range(1, expectedValues.Count).Select(x => (double)x).ToArray();
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("R"));
+            var t = expectedValues.Row(0);
+            var samples = expectedValues.Row(1);
+            expectedValues = expectedValues.SubMatrix(2, expectedValues.RowCount - 2, 0, expectedValues.ColumnCount - 1);
+
+            var scales = Enumerable.Range(1, expectedValues.RowCount).Select(x => (double)x).ToArray();
 
             var wavelet = Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            var cwt = ContinuousWaveletTransform.EstimateUsingFFT(new Signal<float>(samples, fs: 1d/(t[1] - t[0])), wavelet, scales);
+            var cwt = ContinuousWaveletTransform.EstimateUsingFFT(new Signal<double>(samples.ToArray(), fs: 1d/(t[1] - t[0])), wavelet, scales);
 
             Assert.AreEqual(scales.Length, cwt.Scales.Count);
-            var actualValues = new List<Complex>(samples.Length);
+            var actualValues = new List<double>(samples.Count);
             for (int i = 0; i < scales.Length; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i));
-                Tools.AssertAreEqual(expectedValues[i].Take(expectedValues[i].Length - 1).ToList(), actualValues, 1e-3);
+                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i).Select(x => x.Real));
+                Tools.AssertAreEqual(expectedValues.Row(i), actualValues, 1e-3);
             }            
         }
 
@@ -99,29 +86,24 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestContinuousWaveletTransformUsingConvolution(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            float[] samples;
-            var expectedValues = new List<Complex[]>();
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).ToArray();
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    expectedValues.Add(Tools.ReadNumbersFrom(line).Select(x => (Complex)x).ToArray());
-            }
-            var scales = Enumerable.Range(1, expectedValues.Count).Select(x => (double)x).ToArray();
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("R"));
+            var samples = expectedValues.Row(0);
+            expectedValues = expectedValues.SubMatrix(1, expectedValues.RowCount - 1, 0, expectedValues.ColumnCount);
+
+            var scales = Enumerable.Range(1, expectedValues.RowCount).Select(x => (double)x).ToArray();
 
             var wavelet = Wavelets.Wavelets.FromName(wavName);
             Assert.IsNotNull(wavelet);
-            var cwt = ContinuousWaveletTransform.EstimateUsingConvolutions(new Signal<float>(samples), wavelet, scales);
+            var cwt = ContinuousWaveletTransform.EstimateUsingConvolutions(new Signal<double>(samples.ToArray()), wavelet, scales);
 
             Assert.AreEqual(scales.Length, cwt.Scales.Count);
-            var actualValues = new List<Complex>(samples.Length);
+            var actualValues = new List<double>(samples.ToArray());
             for (int i = 0; i < scales.Length; i++)
             {
                 actualValues.Clear();
-                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i));
-                Tools.AssertAreEqual(expectedValues[i], actualValues, 1e-3);
+                actualValues.AddRange(cwt.EnumerateValuesOfScaleAt(i).Select(v => v.Real));
+                Tools.AssertAreEqual(expectedValues.Row(i), actualValues, 1e-3);
             }
         }
 
@@ -136,19 +118,14 @@ namespace Neuronic.TimeFrequency.Testing
         public void TestDiscreteWaveletTransformWithSymetricPadding(string wavName, string valueList)
         {
             var resources = Resources.ResourceManager;
-            valueList = resources.GetString(valueList) ?? valueList;
-            double[] samples;
-            double[] a, d;
-            using (var reader = new StringReader(valueList))
-            {
-                samples = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToArray();
-                a = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double) x).ToArray();
-                d = Tools.ReadNumbersFrom(reader.ReadLine()).Select(x => (double)x).ToArray();
-            }
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("S")).Row(0);
+            var a = CreateMatrix.DenseOfArray(mat.Read<double[,]>("a")).Row(0);
+            var d = CreateMatrix.DenseOfArray(mat.Read<double[,]>("d")).Row(0);
 
             var wavelet = Wavelets.Wavelets.FromName(wavName) as OrthogonalWavelet;
             Assert.IsNotNull(wavelet);
-            var dwt = DiscreteWaveletTransform.Estimate(new Signal<double>(samples), wavelet, null);
+            var dwt = DiscreteWaveletTransform.Estimate(new Signal<double>(samples.ToArray()), wavelet, null);
 
             Tools.AssertAreEqual(a, dwt.Approximation, 1e-3);
             Tools.AssertAreEqual(d, dwt.Detail, 1e-3);
