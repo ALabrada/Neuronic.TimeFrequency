@@ -133,7 +133,7 @@ namespace Neuronic.TimeFrequency
             throw new NotSupportedException();
         }
 
-        bool ICollection<T>.IsReadOnly => Samples.IsReadOnly;
+        bool ICollection<T>.IsReadOnly => false;
         #endregion
     }
 }

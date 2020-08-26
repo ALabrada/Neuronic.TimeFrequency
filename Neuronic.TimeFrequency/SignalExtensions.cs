@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -27,6 +28,11 @@ namespace Neuronic.TimeFrequency
                 return -NextPowerOf2(value);
             var prev = PrevPowerOf2(value);
             return prev != value ? prev << 1 : prev;
+        }
+
+        public static ReadOnlyCollection<T> AsReadOnly<T>(this IList<T> values)
+        {
+            return new ReadOnlyCollection<T>(values);
         }
 
         public static Complex[] ToComplex(this double[] signal)

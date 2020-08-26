@@ -274,7 +274,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <summary>
         /// Gets the estimated scales.
         /// </summary>
-        public IList<double> Scales => Array.AsReadOnly(_scales);
+        public IList<double> Scales => _scales.AsReadOnly();
 
         /// <summary>
         /// Gets the amount of samples in the frequency domain.

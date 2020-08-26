@@ -86,22 +86,22 @@ namespace Neuronic.TimeFrequency.Wavelets
         /// <summary>
         /// Gets the low pass reconstruction filter.
         /// </summary>
-        public ReadOnlyCollection<double> LowReconstructionFilter => Array.AsReadOnly(_lowReconstructionFilter);
+        public ReadOnlyCollection<double> LowReconstructionFilter => _lowReconstructionFilter.AsReadOnly();
 
         /// <summary>
         /// Gets the high pass reconstruction filter.
         /// </summary>
-        public ReadOnlyCollection<double> HighReconstructionFilter => Array.AsReadOnly(_highReconstructionFilter);
+        public ReadOnlyCollection<double> HighReconstructionFilter => _highReconstructionFilter.AsReadOnly();
 
         /// <summary>
         /// Gets the low pass decomposition filter.
         /// </summary>
-        public ReadOnlyCollection<double> LowDecompositionFilter => Array.AsReadOnly(_lowDecompositionFilter);
+        public ReadOnlyCollection<double> LowDecompositionFilter => _lowDecompositionFilter.AsReadOnly();
 
         /// <summary>
         /// Gets the high pass decomposition filter.
         /// </summary>
-        public ReadOnlyCollection<double> HighDecompositionFilter => Array.AsReadOnly(_highDecompositionFilter);
+        public ReadOnlyCollection<double> HighDecompositionFilter => _highDecompositionFilter.AsReadOnly();
 
         /// <summary>
         /// Gets the size that should have the signal returned by <see cref="EvaluateDomain"/>.

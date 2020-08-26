@@ -224,7 +224,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <summary>
         /// Gets the computed frequencies.
         /// </summary>
-        public IEnumerable<double> Frequencies => Array.AsReadOnly(_frequencies);
+        public IEnumerable<double> Frequencies => _frequencies.AsReadOnly();
 
         double IBilinearTimeFrequencyRepresentation.this[int offset, int frequencyIndex] =>
             this[offset, frequencyIndex];
