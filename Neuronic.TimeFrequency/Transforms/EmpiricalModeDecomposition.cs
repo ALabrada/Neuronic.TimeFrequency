@@ -115,6 +115,31 @@ namespace Neuronic.TimeFrequency.Transforms
             min.Sort((p1, p2) => p1.X.CompareTo(p2.X));
         }
 
+        private static void SolveDiagonalSystem(IList<double> lower, IList<double> center, IList<double> upper, IList<double> b)
+        {
+            var n = b.Count;
+            for (int i = 1; i < n; i++)
+            {
+                var factor = lower[i] / center[i - 1];
+                lower[i] = 0;
+                center[i] -= factor * upper[i - 1];
+                b[i] -= factor * b[i - 1];
+            }
+
+            b[n - 1] /= center[n - 1];
+            center[n - 1] = 1;
+
+            for (int i = n - 2; i >= 0; i--)
+            {
+                var factor = upper[i] / center[i + 1];
+                upper[i] = 0;
+                b[i] -= factor * b[i + 1];
+
+                b[i] /= center[i];
+                center[i] = 1;
+            }
+        }
+
         private static IEnumerable<double> SplineInterpolation(IReadOnlyList<DoublePoint> source, IEnumerable<double> eval)
         {
             Func<double, double> interpolation;
@@ -151,7 +176,7 @@ namespace Neuronic.TimeFrequency.Transforms
             }
             else
             {
-                var b = new DenseVector(n);
+                var b = new double[n];
                 for (int i = 1; i < n - 1; i++)
                     b[i] = 3d * (dx(i + 1) * divdif(i) + dx(i) * divdif(i + 1));
 
@@ -160,23 +185,26 @@ namespace Neuronic.TimeFrequency.Transforms
                 b[0] = ((dx(1) + 2 * x31) * dx(2) * divdif(1) + dx(1) * dx(1) * divdif(2)) / x31;
                 b[n - 1] = (dx(n - 1) * dx(n - 1) * divdif(n - 2) + (2 * xn + dx(n - 1)) * dx(n - 2) * divdif(n - 1)) / xn;
 
-                var c = new SparseMatrix(n, n)
-                {
-                    [0, 1] = x31,
-                    [0, 0] = dx(2),
-                    [n - 1, n - 1] = dx(n - 2),
-                    [n - 1, n - 2] = xn
-                };
+                var upper = new double[n];
+                var center = new double[n];
+                var lower = new double[n];
+
+                upper[0] = x31;
+                center[0] = dx(2);
+
                 for (int i = 1; i <= n - 2; i++)
                 {
-                    c[i, i + 1] = dx(i);
-                    c[i, i] = 2d * (dx(i + 1) + dx(i));
-                    c[i, i - 1] = dx(i + 1);
+                    upper[i] = dx(i);
+                    center[i] = 2d * (dx(i + 1) + dx(i));
+                    lower[i] = dx(i + 1);
                 }
 
-                var slopes = c.Solve(b).ToArray();
+                center[n - 1] = dx(n - 2);
+                lower[n - 1] = xn;
 
-                var spline = CubicSpline.InterpolateHermiteSorted(xs, ys, slopes);
+                SolveDiagonalSystem(lower, center, upper, b);
+
+                var spline = CubicSpline.InterpolateHermiteSorted(xs, ys, b);
                 interpolation = spline.Interpolate;
             }
             
