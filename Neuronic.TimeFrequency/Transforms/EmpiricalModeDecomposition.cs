@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra.Double;
@@ -140,9 +141,8 @@ namespace Neuronic.TimeFrequency.Transforms
             }
         }
 
-        private static IEnumerable<double> SplineInterpolation(IReadOnlyList<DoublePoint> source, IEnumerable<double> eval)
+        private static IInterpolation SplineInterpolation(IReadOnlyList<DoublePoint> source)
         {
-            Func<double, double> interpolation;
             var n = source.Count;
             if (n < 2)
                 throw new ArgumentException("2 points at least are required.", nameof(source));
@@ -162,7 +162,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 //ys[1] = ys[0];
                 //ys[0] = temp;
 
-                interpolation = StepInterpolation.InterpolateSorted(xs, ys).Interpolate;
+                return StepInterpolation.InterpolateSorted(xs, ys);
             }
             else if (n == 3)
             {
@@ -172,7 +172,7 @@ namespace Neuronic.TimeFrequency.Transforms
                 ys[1] -= ys[2] * dx(1);
 
                 var p = new Polynomial(ys);
-                interpolation = p.Evaluate;
+                return new PolynomialInterpolation(p);
             }
             else
             {
@@ -205,11 +205,8 @@ namespace Neuronic.TimeFrequency.Transforms
                 SolveDiagonalSystem(lower, center, upper, b);
 
                 var spline = CubicSpline.InterpolateHermiteSorted(xs, ys, b);
-                interpolation = spline.Interpolate;
+                return spline;
             }
-            
-            foreach (var x in eval)
-                yield return interpolation(x + 1);
         }
 
         /// <summary>
@@ -219,6 +216,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="outerStop">The stop criteria of the outer loop. Default is <see cref="ResidualStopCriteria"/>.</param>
         /// <param name="innerStop">The stop criteria of the inner loop, responsible for obtaining each IMF. Default is <see cref="ResolutionStopCriteria"/>.</param>
         /// <param name="alpha">Gradient step size, in the range (0, 1].</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The EMD of <paramref name="signal"/>.</returns>
         /// <remarks>
         /// This algorithm is based on the work of Rato, R. T., Ortigueira, M. D. and Batista, A. G., published in the article
@@ -227,9 +225,10 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </remarks>
         public static EmpiricalModeDecomposition Estimate(IReadOnlySignal<double> signal, 
             IStopCriteria<OuterState> outerStop = null, IStopCriteria<InnerState> innerStop = null, 
-            double alpha = 1d)
+            double alpha = 1d, ParallelOptions options = null)
         {
             if (alpha <= 0 || alpha > 1) throw new ArgumentOutOfRangeException(nameof(alpha));
+            options = options ?? new ParallelOptions();
 
             var localMax = new List<DoublePoint>(signal.Count);
             var localMin = new List<DoublePoint>(signal.Count);
@@ -254,9 +253,12 @@ namespace Neuronic.TimeFrequency.Transforms
 
                 Debug.Assert(Math.Abs(localMax.Count - localMin.Count) < 2, "Max-Min count mismatch.");
 
-                var top = SplineInterpolation(localMax, Enumerable.Range(0, signal.Count).Select(x => (double) x));
-                var bottom = SplineInterpolation(localMin, Enumerable.Range(0, signal.Count).Select(x => (double) x));
-                top.Zip(bottom, (t, b) => (t + b) / 2).CopyTo(bias.Samples, 0);
+                IInterpolation top = null, bottom = null;
+
+                Parallel.Invoke(options, 
+                    () => top = SplineInterpolation(localMax), 
+                    () => bottom = SplineInterpolation(localMin));
+                Enumerable.Range(1, signal.Count).Select(x => (top.Interpolate(x) + bottom.Interpolate(x)) / 2).CopyTo(bias.Samples, 0);
 
                 for (int itIn = 0; !innerStop.ShouldStop(new InnerState(itIn, imf, bias)); itIn++)
                 {
@@ -265,9 +267,10 @@ namespace Neuronic.TimeFrequency.Transforms
 
                     GetLocalExtremeValues(imf, localMax, localMin);
 
-                    top = SplineInterpolation(localMax, Enumerable.Range(0, signal.Count).Select(x => (double)x));
-                    bottom = SplineInterpolation(localMin, Enumerable.Range(0, signal.Count).Select(x => (double)x));
-                    top.Zip(bottom, (t, b) => (t + b) / 2).CopyTo(bias.Samples, 0);
+                    Parallel.Invoke(options, 
+                        () => top = SplineInterpolation(localMax), 
+                        () => bottom = SplineInterpolation(localMin));
+                    Enumerable.Range(1, signal.Count).Select(x => (top.Interpolate(x) + bottom.Interpolate(x)) / 2).CopyTo(bias.Samples, 0);
                 }
 
                 results.Add(imf.Samples);
@@ -289,6 +292,7 @@ namespace Neuronic.TimeFrequency.Transforms
         /// <param name="outerStop">The stop criteria of the outer loop.</param>
         /// <param name="innerStop">The stop criteria of the inner loop, responsible for obtaining each IMF.</param>
         /// <param name="alpha">Gradient step size, in the range (0, 1].</param>
+        /// <param name="options">The options for parallelization.</param>
         /// <returns>The EMD of <paramref name="signal"/>.</returns>
         /// <remarks>
         /// This algorithm is based on the work of Rato, R. T., Ortigueira, M. D. and Batista, A. G., published in the article
@@ -297,9 +301,9 @@ namespace Neuronic.TimeFrequency.Transforms
         /// </remarks>
         public static EmpiricalModeDecomposition Estimate(IReadOnlySignal<float> signal,
             IStopCriteria<OuterState> outerStop = null, IStopCriteria<InnerState> innerStop = null,
-            double alpha = 1d)
+            double alpha = 1d, ParallelOptions options = null)
         {
-            return Estimate(signal.Map(x => (double) x), outerStop, innerStop, alpha);
+            return Estimate(signal.Map(x => (double) x), outerStop, innerStop, alpha, options);
         }
 
         /// <summary>
@@ -364,7 +368,9 @@ namespace Neuronic.TimeFrequency.Transforms
                 GetLocalExtremeValues(imf, max, min);
                 
                 var amplitude = new double[n];
-                SplineInterpolation(max, Enumerable.Range(0, imf.Length).Select(x => (double)x)).CopyTo(amplitude, 0);
+
+                var spline = SplineInterpolation(max);
+                Enumerable.Range(1, imf.Length).Select(x => spline.Interpolate(x)).CopyTo(amplitude, 0);
 
                 double FM(int index) => imf[index] / amplitude[index];
 
@@ -499,6 +505,30 @@ namespace Neuronic.TimeFrequency.Transforms
             /// Gets the iteration.
             /// </summary>
             public int Iteration { get; }
+        }
+
+        class PolynomialInterpolation : IInterpolation
+        {
+            public PolynomialInterpolation(Polynomial polynomial)
+            {
+                Polynomial = polynomial ?? throw new ArgumentNullException(nameof(polynomial));
+            }
+
+            public Polynomial Polynomial { get; }
+
+            public double Interpolate(double t) => Polynomial.Evaluate(t);
+
+            public double Differentiate(double t) => Polynomial.Differentiate().Evaluate(t);
+
+            public double Differentiate2(double t) => Polynomial.Differentiate().Differentiate().Evaluate(t);
+
+            public double Integrate(double t) => Polynomial.Integrate().Evaluate(t);
+
+            public double Integrate(double a, double b) =>
+                Polynomial.Integrate().Evaluate(b) - Polynomial.Integrate().Evaluate(a);
+
+            public bool SupportsDifferentiation => true;
+            public bool SupportsIntegration => true;
         }
     }
 
