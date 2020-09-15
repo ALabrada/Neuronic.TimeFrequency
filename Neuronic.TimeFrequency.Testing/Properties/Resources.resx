@@ -325,4 +325,28 @@
   <data name="spectrogram_hann255_noover" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\spectrogram_hann255_noover.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="idwt_bior2_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_bior2.6.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_bior3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_bior3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_db10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_db10.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_db20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_db20.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_db5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_db5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_haar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_haar.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_rbio1_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_rbio1.5.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="idwt_rbio3_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\idwt_rbio3.3.mat;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

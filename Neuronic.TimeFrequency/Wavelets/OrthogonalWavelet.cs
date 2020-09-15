@@ -141,15 +141,15 @@ namespace Neuronic.TimeFrequency.Wavelets
             return coeffs;
         }
 
-        private void UpsumplingConvolution(double[] coeff, double[] filter, double[] output)
+        internal static void UpsumplingConvolution(IList<double> coeff, IList<double> filter, IList<double> output)
         {
-            if (filter.Length < 2 || filter.Length % 2 != 0)
+            if (filter.Count < 2 || filter.Count % 2 != 0)
                 throw new ArgumentException("Invalid filter length", nameof(filter));
 
             var i = 0;
             var o = 0;
 
-            for (; i < coeff.Length && i < filter.Length / 2; ++i, o += 2)
+            for (; i < coeff.Count && i < filter.Count / 2; ++i, o += 2)
             {
                 for (var j = 0; j <= i; ++j)
                 {
@@ -158,27 +158,27 @@ namespace Neuronic.TimeFrequency.Wavelets
                 }
             }
 
-            for (; i < coeff.Length; ++i, o += 2)
+            for (; i < coeff.Count; ++i, o += 2)
             {
-                for (var j = 0; j < filter.Length / 2; ++j)
+                for (var j = 0; j < filter.Count / 2; ++j)
                 {
                     output[o] += filter[j * 2] * coeff[i - j];
                     output[o + 1] += filter[j * 2 + 1] * coeff[i - j];
                 }
             }
 
-            for (; i < filter.Length / 2; ++i, o += 2)
+            for (; i < filter.Count / 2; ++i, o += 2)
             {
-                for (var j = i - (coeff.Length - 1); j <= i; ++j)
+                for (var j = i - (coeff.Count - 1); j <= i; ++j)
                 {
                     output[o] += filter[j * 2] * coeff[i - j];
                     output[o + 1] += filter[j * 2 + 1] * coeff[i - j];
                 }
             }
 
-            for (; i < coeff.Length + filter.Length / 2; ++i, o += 2)
+            for (; i < coeff.Count + filter.Count / 2; ++i, o += 2)
             {
-                for (var j = i - (coeff.Length - 1); j < filter.Length / 2; ++j)
+                for (var j = i - (coeff.Count - 1); j < filter.Count / 2; ++j)
                 {
                     output[o] += filter[j * 2] * coeff[i - j];
                     output[o + 1] += filter[j * 2 + 1] * coeff[i - j];

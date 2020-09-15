@@ -132,6 +132,29 @@ namespace Neuronic.TimeFrequency.Testing
         }
 
         [TestMethod]
+        [DataRow("db5", "idwt_db5", DisplayName = "Daubechies order 5")]
+        [DataRow("db20", "idwt_db20", DisplayName = "Daubechies order 20")]
+        [DataRow("bior3.3", "idwt_bior3_3", DisplayName = "Biorthogonal 3.3")]
+        [DataRow("bior2.6", "idwt_bior2_6", DisplayName = "Biorthogonal 2.6")]
+        [DataRow("rbio3.3", "idwt_rbio3_3", DisplayName = "Reverse biorthogonal 3.3")]
+        [DataRow("rbio1.5", "idwt_rbio1_5", DisplayName = "Reverse biorthogonal 1.5")]
+
+        public void TestReverseDiscreteWaveletTransformWithSymetricPadding(string wavName, string valueList)
+        {
+            var resources = Resources.ResourceManager;
+            var mat = new MatReader((byte[])resources.GetObject(valueList));
+            var samples = CreateMatrix.DenseOfArray(mat.Read<double[,]>("S")).Row(0);
+            var expectedValues = CreateMatrix.DenseOfArray(mat.Read<double[,]>("S2")).Row(0);
+
+            var wavelet = Wavelets.Wavelets.FromName(wavName) as OrthogonalWavelet;
+            Assert.IsNotNull(wavelet);
+            var dwt = DiscreteWaveletTransform.Estimate(new Signal<double>(samples.ToArray()), wavelet, null);
+            var idwt = dwt.Reverse();
+
+            Tools.AssertAreEqual(expectedValues, idwt.ToList(), 1e-3);
+        }
+
+        [TestMethod]
         [DataRow(30d, "dtfd_cw_30", DisplayName = "Choi-Williams sigma=30")]
         [DataRow(100d, "dtfd_cw_100", DisplayName = "Choi-Williams sigma=100")]
         public void TestChoiWilliamsTimeFrequencyDistribution(double sigma, string valueList)

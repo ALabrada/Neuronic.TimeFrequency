@@ -92,6 +92,11 @@ namespace Neuronic.TimeFrequency.Transforms
         }
 
         /// <summary>
+        /// Gets the upper scale in a multi-scale DWT.
+        /// </summary>
+        public DiscreteWaveletTransform UpperScale { get; private set; }
+
+        /// <summary>
         /// Gets the offset of the first sample in the time domain.
         /// </summary>
         double StartTime { get; }
@@ -115,5 +120,67 @@ namespace Neuronic.TimeFrequency.Transforms
         /// Gets the detail coefficients.
         /// </summary>
         public ReadOnlyCollection<double> Detail { get; }
+
+        /// <summary>
+        /// Estimates the next DWT scale.
+        /// </summary>
+        /// <param name="padding">The padding.</param>
+        /// <returns>The next scale.</returns>
+        public DiscreteWaveletTransform EstimateNextScale(IPadding<double> padding)
+        {
+            var signal = new ReadOnlySignal<double>(Approximation, StartTime, 2d / SamplingPeriod);
+            var dwt = Estimate(signal, Wavelet, padding);
+            dwt.UpperScale = this;
+            return dwt;
+        }
+
+        /// <summary>
+        /// Estimates a multi-scale DWT analysis of the signal.
+        /// </summary>
+        /// <param name="padding">The padding.</param>
+        /// <param name="scales">The maximum number of scales or <c>zero</c> for unlimited.</param>
+        /// <returns>The lowest scale of the multi-scale DWT.</returns>
+        public DiscreteWaveletTransform EstimateMultiscale(IPadding<double> padding, int scales = -1)
+        {
+            if (Approximation.Count < 2 || scales == 0)
+                return this;
+            var next = EstimateNextScale(padding);
+            return next.EstimateMultiscale(padding, scales - 1);
+        }
+
+        /// <summary>
+        /// Reconstructs the original signal by reversing the DWT.
+        /// </summary>
+        /// <returns>The reconstructed signal.</returns>
+        /// <remarks>
+        /// If the DWT is multi-scale, the reconstruction includes also the upper scales.
+        /// </remarks>
+        public IReadOnlySignal<double> Reverse()
+        {
+            var samples = ReverseMultiscale();
+            return new ReadOnlySignal<double>(samples, StartTime, 1d / SamplingPeriod);
+        }
+
+        /// <summary>
+        /// Reverses the DWT using the approximation coefficients reconstructed from lower scales.
+        /// </summary>
+        /// <param name="approximation">The approximation coefficients.</param>
+        /// <returns>The reconstructed signal.</returns>
+        protected IList<double> ReverseMultiscale(IList<double> approximation = null)
+        {
+            approximation = approximation ?? Approximation;
+            var signal = new double[Detail.Count * 2 + Wavelet.FilterLength - 2];
+            var lowRec = Wavelet.LowReconstructionFilter;
+            var highRec = Wavelet.HighReconstructionFilter;
+
+            OrthogonalWavelet.UpsumplingConvolution(approximation, lowRec, signal);
+            OrthogonalWavelet.UpsumplingConvolution(Detail, highRec, signal);
+
+            var result = new ArraySegment<double>(signal, Wavelet.FilterLength - 2, 2 * Detail.Count - Wavelet.FilterLength + 2) as IList<double>;
+            if (UpperScale != null)
+                result = UpperScale.ReverseMultiscale(result);
+
+            return result;
+        }
     }
 }

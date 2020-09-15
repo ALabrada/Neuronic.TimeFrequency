@@ -121,6 +121,14 @@
     <None Include="Resources\gen_kernel_swvd_rect51_doppler.mat" />
     <None Include="Resources\gen_kernel_swvd_rect51_time.mat" />
     <None Include="Resources\HHT_128.mat" />
+    <None Include="Resources\idwt_bior2.6.mat" />
+    <None Include="Resources\idwt_bior3.3.mat" />
+    <None Include="Resources\idwt_db10.mat" />
+    <None Include="Resources\idwt_db20.mat" />
+    <None Include="Resources\idwt_db5.mat" />
+    <None Include="Resources\idwt_haar.mat" />
+    <None Include="Resources\idwt_rbio1.5.mat" />
+    <None Include="Resources\idwt_rbio3.3.mat" />
     <None Include="Resources\mycwt_gaus1.mat" />
     <None Include="Resources\mycwt_gaus5.mat" />
     <None Include="Resources\mycwt_mexh.mat" />

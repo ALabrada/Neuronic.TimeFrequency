@@ -433,6 +433,86 @@ namespace Neuronic.TimeFrequency.Testing.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] idwt_bior2_6 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_bior2_6", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_bior3_3 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_bior3_3", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_db10 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_db10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_db20 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_db20", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_db5 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_db5", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_haar {
+            get {
+                object obj = ResourceManager.GetObject("idwt_haar", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_rbio1_5 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_rbio1_5", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] idwt_rbio3_3 {
+            get {
+                object obj = ResourceManager.GetObject("idwt_rbio3_3", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] mycwt_gaus1 {
             get {
                 object obj = ResourceManager.GetObject("mycwt_gaus1", resourceCulture);
